@@ -1,0 +1,730 @@
+<HTML>
+<HEAD>
+<TITLE>ClearQuest XML Format</TITLE>
+<STYLE TYPE='text/css'>
+A:hover { color: red; text-decoration: none; }
+H2, H4  { background-color: #eeeeff; }
+H4      { margin: 30 0 0 0; }
+P       { margin: 0 0 10 25; }
+sup     { font-size: 10; }
+TABLE   { margin: 20 0 0 0; }
+td      { vertical-align: top; }
+th      { background: #ccccff; }
+
+TABLE.hdr   { background-color: #eeeeff; }
+TD.hdrname  { font-size: 110%; font-weight: bold; }
+TD.hdrnav   { font-size: 75%; text-align: right }
+
+.atrb   { color: black; font-weight: bold; }
+.atrbval { color: blue; }
+.code   { color: #000099; font-family: monospace; font-size: 100%; }
+.elem   { color: purple; font-weight: bold; }
+.indt1  { margin-left: 20; }
+.indt2  { margin-left: 40; }
+.inline { color: black; }
+.hili1  { color: #003300; font-size: 100%; font-weight: bold; }
+.toc    { font-family: Arial,Helvetica,sans-serif; font-weight: bold; }
+.warn   { color: #990000; }
+</STYLE>
+</HEAD>
+<BODY>
+<A NAME="top"></A>
+<CENTER>
+  <H2>ClearQuest XML Format</H2>
+  <SPAN CLASS="toc">
+    <A HREF="#root">Root Element</A>
+    &nbsp;|&nbsp;
+    <A HREF="#record">Record Elements</A>
+    &nbsp;|&nbsp;
+    <A HREF="#field">Field Elements</A>
+    &nbsp;|&nbsp;
+    <A HREF="#query">Query Elements</A>
+    &nbsp;|&nbsp;
+    <A HREF="#note">Important Notes</A>
+    &nbsp;|&nbsp;
+    <A HREF="#example">Examples</A>
+    &nbsp;|&nbsp;
+    <a href='#ref'>Quick Ref</a>
+  </SPAN>
+</CENTER>
+
+<P><BR></P>
+
+<!--
+### ROOTELEM ##############################################################
+-->
+<A NAME="root"></A>
+<TABLE WIDTH=100% CLASS="hdr">
+<TR>
+  <TD CLASS="hdrname">Root Element</TD>
+  <TD CLASS="hdrnav">
+    <SPAN CLASS="toc">
+      <A HREF="#top">Top</A>
+      &nbsp;|&nbsp;
+      <A HREF="#root">Root</A>
+      &nbsp;|&nbsp;
+      <A HREF="#record">Record</A>
+      &nbsp;|&nbsp;
+      <A HREF="#field">Field</A>
+      &nbsp;|&nbsp;
+      <A HREF="#query">Query</A>
+      &nbsp;|&nbsp;
+      <A HREF="#note">Notes</A>
+      &nbsp;|&nbsp;
+      <A HREF="#example">Examples</A>
+      &nbsp;|&nbsp;
+      <a href='#ref'>Quick Ref</a>
+    </SPAN>
+  </TD>
+</TR>
+</TABLE>
+
+<P>
+The root element of the ClearQuest/VCS integration server is <SPAN CLASS="elem">ClearQuest</SPAN>.
+</P>
+<P>
+The root element has four mandatory attributes:
+<UL>
+  <LI><SPAN CLASS="atrb">login</SPAN> is your ClearQuest login.</LI>
+  <LI><SPAN CLASS="atrb">password</SPAN> is your ClearQuest password.</LI>
+  <ul>
+    <li><span class='atrb'>encrypted</span> can be used instead to send your password using RC4 encryption.</li>
+  </ul>
+  <LI><SPAN CLASS="atrb">db</SPAN> <s>should be set to '<SPAN CLASS='code'>prodd</SPAN>'</s>.</LI>
+  <ul>
+    <li>Contact <a href="mailto:cqsupport@mentor.com">cqsupport</a> to get the development database name.</li>
+  </ul>
+  <LI><SPAN CLASS="atrb">repo</SPAN> <s>should be set to '<SPAN CLASS='code'>prodr</SPAN>'</s>.</LI>
+  <ul>
+    <li>Contact <a href="mailto:cqsupport@mentor.com">cqsupport</a> to get the development repository name.</li>
+  </ul>
+</UL>
+</P>
+<p>
+The root element has one optional attribute:
+<ul>
+  <li><span class='atrb'>email-fail</span> will send email to the address specified if the operation fails.  This is best used in conjunction with the <a class="inline" href="#record">record element's</a> <span class='atrb'><i>wait</i></span> attribute set to '<span class='code'>no</span>'.
+</ul>
+</p>
+<P>
+When complete, your root element should look similar to following:
+</P>
+<P>
+&lt;<SPAN CLASS="elem">ClearQuest</SPAN> <SPAN CLASS="atrb">login</SPAN>=<SPAN CLASS="atrbval">'cq_user'</SPAN> <SPAN CLASS="atrb">password</SPAN>=<SPAN CLASS="atrbval">'password'</SPAN> <SPAN CLASS="atrb">db</SPAN>=<SPAN CLASS="atrbval">'prodd'</SPAN> <SPAN CLASS="atrb">repo</SPAN>=<SPAN CLASS="atrbval">'prodr'</SPAN>&gt;
+</P>
+<P CLASS="warn">
+* You can't have more than one root element in XML.  If you need to send multiple commands, send multiple record/query elements within one root element or make multiple connections to the server.
+</P>
+
+<!--
+### RECELEM ###############################################################
+-->
+<A NAME="record"></A>
+<TABLE WIDTH=100% CLASS="hdr">
+<TR>
+  <TD CLASS="hdrname">Record Elements</TD>
+  <TD CLASS="hdrnav">
+    <SPAN CLASS="toc">
+      <A HREF="#top">Top</A>
+      &nbsp;|&nbsp;
+      <A HREF="#root">Root</A>
+      &nbsp;|&nbsp;
+      <A HREF="#record">Record</A>
+      &nbsp;|&nbsp;
+      <A HREF="#field">Field</A>
+      &nbsp;|&nbsp;
+      <A HREF="#query">Query</A>
+      &nbsp;|&nbsp;
+      <A HREF="#note">Notes</A>
+      &nbsp;|&nbsp;
+      <A HREF="#example">Examples</A>
+      &nbsp;|&nbsp;
+      <a href='#ref'>Quick Ref</a>
+    </SPAN>
+  </TD>
+</TR>
+</TABLE>
+<P>
+Record elements represent the record types that you wish to perform actions upon.  At this time, the only records that can be accessed through the ClearQuest/XML Interface are <span class="code">defect</span> records.
+<!--
+This may include <SPAN CLASS="code">version_control</SPAN>, <SPAN CLASS="code">defect</SPAN> or <SPAN CLASS="code">#fix</SPAN> records.
+-->
+</P>
+<P>
+Record elements have three attributes.  
+<UL>
+  <LI>
+    <SPAN CLASS="atrb"><I>[unique id]</I></SPAN> attribute <I>label</I> should be the unique key of the record type you are operating upon.  The <I>value</I> should identify the record.  For example, a defect element would start like this:
+    <BR>
+    <SPAN CLASS="indt1">
+    &lt;<SPAN CLASS="elem">defect</SPAN> <SPAN CLASS="atrb">id</SPAN>=<SPAN CLASS="atrbval">'prodd00301000'</SPAN>...
+    </SPAN>
+    <!--
+    <BR>
+    While a version_control element would start like this:
+    <BR>
+    <SPAN CLASS="indt1">
+    &lt;<SPAN CLASS="elem">version_control</SPAN> <SPAN CLASS="atrb">dbid</SPAN>=<SPAN CLASS="atrbval">'123456789'</SPAN>...
+    </SPAN>
+    -->
+    <BR>
+    The <SPAN CLASS="atrb"><I>[unique id]</I></SPAN> attribute is even required for the <SPAN CLASS="code">submit</SPAN> action.  If you are submitting a record, any value will do.
+  </LI>
+  <LI>
+    <SPAN CLASS="atrb">action</SPAN> is a required attribute that specifies which action to perform on the record.  Valid values are almost all actions permitted by ClearQuest plus '<SPAN CLASS="code">view</SPAN>'.  The un/duplicate actions are not supported.  View will display the values of a defect.  During a view action, use <a class="inline" href="#field">field elements</a> to specify which fields you would like to see.  If you do not specify <a class="inline" href="#field">field elements</a> <I>all</I> fields will be returned.
+  </LI>
+  <LI>
+    <SPAN CLASS="atrb">wait</SPAN> specifies whether you would like to wait for a response from the server or you would not like to wait and your action will be queued and processed later.  Valid values are '<SPAN CLASS="code">yes</SPAN>' and '<SPAN CLASS="code">no</SPAN>'.  If you do not specify a wait value the server assumes '<SPAN CLASS="code">no</SPAN>' and queues your request.
+  </LI>
+</UL>
+</P>
+<P>
+When complete your record element should look similar to following:
+</P>
+<P>
+&lt;<SPAN CLASS="elem">defect</SPAN> <SPAN CLASS="atrb">id</SPAN>=<SPAN CLASS="atrbval">'prodd00301000'</SPAN> <SPAN CLASS="atrb">action</SPAN>=<SPAN CLASS="atrbval">'modify'</SPAN> <SPAN CLASS="atrb">wait</SPAN>=<SPAN CLASS="atrbval">'yes'</SPAN>&gt;
+</P>
+</SPAN>
+
+<!--
+### FLDELEM ###############################################################
+-->
+<A NAME="field"></A>
+<TABLE WIDTH=100% CLASS="hdr">
+<TR>
+  <TD CLASS="hdrname">Field Elements</TD>
+  <TD CLASS="hdrnav">
+    <SPAN CLASS="toc">
+      <A HREF="#top">Top</A>
+      &nbsp;|&nbsp;
+      <A HREF="#root">Root</A>
+      &nbsp;|&nbsp;
+      <A HREF="#record">Record</A>
+      &nbsp;|&nbsp;
+      <A HREF="#field">Field</A>
+      &nbsp;|&nbsp;
+      <A HREF="#query">Query</A>
+      &nbsp;|&nbsp;
+      <A HREF="#note">Notes</A>
+      &nbsp;|&nbsp;
+      <A HREF="#example">Examples</A>
+      &nbsp;|&nbsp;
+      <a href='#ref'>Quick Ref</a>
+    </SPAN>
+  </TD>
+</TR>
+</TABLE>
+<P>
+Field elements specify fields that you would like to operate upon.  The fields are the names as saved in the ClearQuest database not the ClearQuest form.  For example, the <SPAN CLASS="code">Version</SPAN> field is saved in the database as "<SPAN CLASS="code">version_reported</SPAN>".  To see field database names, click on the field within ClearQuest and look for the <B>DB Field Name</B> or use the <A HREF="http://engrdocs.site/clearquest/datadictionary.html">ClearQuest Data Dictionary</A>.
+</P>
+<P>
+Field elements have one optional attribute.
+<UL>
+  <LI>
+    <SPAN CLASS="atrb">behavior</SPAN> specifies how the field should be changed.  If you are performing an action that doesn't modify the record (ie: view), this attribute is ignored.  Valid values are
+    '<SPAN CLASS="code">replace</SPAN>',
+    '<SPAN CLASS="code">add</SPAN>' and
+    '<SPAN CLASS="code">remove</SPAN>'.  If you do not specify a behavior value the server assumes
+    '<SPAN CLASS="code">replace</SPAN>'.
+  </LI>
+</UL>
+</P>
+<P>
+When complete, your field element should look similar to the following:
+</P>
+<P>
+&lt;<SPAN CLASS="elem">headline</SPAN> <SPAN CLASS="atrb">behavior</SPAN>=<SPAN CLASS="atrbval">'replace'</SPAN>&gt;new headline value&lt;/<SPAN CLASS="elem">headline</SPAN>&gt;
+</P>
+
+<!--
+### QRYELEM ###############################################################
+-->
+<A NAME="query"></A>
+<TABLE WIDTH=100% CLASS="hdr">
+<TR>
+  <TD CLASS="hdrname">Query Elements</TD>
+  <TD CLASS="hdrnav">
+    <SPAN CLASS="toc">
+      <A HREF="#top">Top</A>
+      &nbsp;|&nbsp;
+      <A HREF="#root">Root</A>
+      &nbsp;|&nbsp;
+      <A HREF="#record">Record</A>
+      &nbsp;|&nbsp;
+      <A HREF="#field">Field</A>
+      &nbsp;|&nbsp;
+      <A HREF="#query">Query</A>
+      &nbsp;|&nbsp;
+      <A HREF="#note">Notes</A>
+      &nbsp;|&nbsp;
+      <A HREF="#example">Examples</A>
+      &nbsp;|&nbsp;
+      <a href='#ref'>Quick Ref</a>
+    </SPAN>
+  </TD>
+</TR>
+</TABLE>
+<P>
+Query elements specify queries to run through the server.
+</P>
+<P>
+Query elements have two attributes.
+<UL>
+  <LI>
+    <SPAN CLASS="atrb">name</SPAN> specifies the <I>full</I> name of the query.  For example, if you wish to run the public query "My&nbsp;To&nbsp;Do&nbsp;List", you must specify "<SPAN CLASS="code">Public&nbsp;Queries/My&nbsp;To&nbsp;Do&nbsp;List</SPAN>"
+  </LI>
+  <LI>
+    <SPAN CLASS="atrb">wait</SPAN> is used the same as the 
+    <SPAN CLASS="atrb">wait</SPAN> attribute found in the <A HREF="#record">record element</A>.
+  </LI>
+</UL>
+</P>
+<P>
+When complete, your query element should look similar to the following:
+</P>
+<P>
+&lt;<SPAN CLASS="elem">query</SPAN> <SPAN CLASS="atrb">name</SPAN>=<SPAN CLASS="atrbval">'Public Queries/My To Do List'</SPAN> <SPAN CLASS="atrb">wait</SPAN>=<SPAN CLASS="atrbval">'yes'</SPAN>/&gt;
+</P>
+
+<p>
+To use prompted queries, use '<span class='code'>prompt#</span>' as the field element names where each number is equivalent to the oter the query prompts on the web.
+</p>
+<p>
+Prompted queries should look similar to the following:
+</p>
+<p>
+&lt;<SPAN CLASS="elem">query</SPAN> <SPAN CLASS="atrb">name</SPAN>=<SPAN CLASS="atrbval">'Public Queries/Prompt Old Defect #'</SPAN> <SPAN CLASS="atrb">wait</SPAN>=<SPAN CLASS="atrbval">'yes'</SPAN>&gt;
+<br>
+<span class="indt1">
+  &lt;<SPAN CLASS="elem">prompt1</SPAN>&gt;TR209823914&lt;<SPAN CLASS="elem">prompt1</SPAN>&gt;
+</span>
+<br>
+&lt;/<SPAN CLASS="elem">query</SPAN>&gt;
+</p>
+
+<!--
+### NOTE ##################################################################
+-->
+<A NAME="note"></A>
+<TABLE WIDTH=100% CLASS="hdr">
+<TR>
+  <TD CLASS="hdrname">Important Notes</TD>
+  <TD CLASS="hdrnav">
+    <SPAN CLASS="toc">
+      <A HREF="#top">Top</A>
+      &nbsp;|&nbsp;
+      <A HREF="#root">Root</A>
+      &nbsp;|&nbsp;
+      <A HREF="#record">Record</A>
+      &nbsp;|&nbsp;
+      <A HREF="#field">Field</A>
+      &nbsp;|&nbsp;
+      <A HREF="#query">Query</A>
+      &nbsp;|&nbsp;
+      <A HREF="#note">Notes</A>
+      &nbsp;|&nbsp;
+      <A HREF="#example">Examples</A>
+      &nbsp;|&nbsp;
+      <a href='#ref'>Quick Ref</a>
+    </SPAN>
+  </TD>
+</TR>
+</TABLE>
+<P>
+  <UL>
+    <LI>
+      <SPAN CLASS="warn">Elements are not processed in order.</SPAN>  Therefore the following example may not work as expected:
+      <P>
+      &lt;<SPAN CLASS="elem">defect</SPAN> ...
+      <BR>
+      <SPAN CLASS="indt1">
+      &lt;<SPAN CLASS="elem">platform</SPAN> <SPAN CLASS="atrb">behavior</SPAN>=<SPAN CLASS="atrbval">'replace'</SPAN>&gt;Solaris 10 SPARC&lt;<SPAN CLASS="elem">platform</SPAN>&gt;
+      </SPAN>
+      <BR>
+      <SPAN CLASS="indt1">
+      &lt;<SPAN CLASS="elem">platform</SPAN> <SPAN CLASS="atrb">behavior</SPAN>=<SPAN CLASS="atrbval">'add'</SPAN>&gt;Solaris 9 SPARC&lt;<SPAN CLASS="elem">platform</SPAN>&gt;
+      </SPAN>
+      </P>
+      One might assume that the first element would clear the list, set 'Solaris 10 SPARC' and the second element would add 'Solaris 9 SPARC' to the list.  Unfortunately since the elements are not processed in order, it is possible that the second element would change the field and <I>then</I> the first element would replace the entire list with 'Solaris 10 SPARC'.
+    </LI>
+    <LI>The XML returned by the server may not be well-formed.  This can occur under two conditions.  First, if one of the fields returned by ClearQuest has XML reserved characters such as '&lt;' or '&amp;'.  Second, if there is an error with the XML sent to the server, the server will return an error and indicate where in the XML it had a problem.</LI>
+  </UL>
+</P>
+
+<!--
+### EXAMPLE ###############################################################
+-->
+<A NAME="example"></A>
+<TABLE WIDTH=100% CLASS="hdr">
+<TR>
+  <TD CLASS="hdrname">Examples</TD>
+  <TD CLASS="hdrnav">
+    <SPAN CLASS="toc">
+      <A HREF="#top">Top</A>
+      &nbsp;|&nbsp;
+      <A HREF="#root">Root</A>
+      &nbsp;|&nbsp;
+      <A HREF="#record">Record</A>
+      &nbsp;|&nbsp;
+      <A HREF="#field">Field</A>
+      &nbsp;|&nbsp;
+      <A HREF="#query">Query</A>
+      &nbsp;|&nbsp;
+      <A HREF="#note">Notes</A>
+      &nbsp;|&nbsp;
+      <A HREF="#example">Examples</A>
+      &nbsp;|&nbsp;
+      <a href='#ref'>Quick Ref</a>
+    </SPAN>
+  </TD>
+</TR>
+</TABLE>
+<P>
+<UL>
+  <LI>
+    <SPAN CLASS="hili1">View the headline and owner of defect 'prodd00301000':</SPAN>
+    <P>
+    &lt;<SPAN CLASS="elem">ClearQuest</SPAN> <SPAN CLASS="atrb">login</SPAN>=<SPAN CLASS="atrbval">'cq_user'</SPAN> <SPAN CLASS="atrb">password</SPAN>=<SPAN CLASS="atrbval">'password'</SPAN> <SPAN CLASS="atrb">db</SPAN>=<SPAN CLASS="atrbval">'prodd'</SPAN> <SPAN CLASS="atrb">repo</SPAN>=<SPAN CLASS="atrbval">'prodr'</SPAN>&gt;
+    <BR>
+    <SPAN CLASS="indt1">
+    &lt;<SPAN CLASS="elem">defect</SPAN> <SPAN CLASS="atrb">id</SPAN>=<SPAN CLASS="atrbval">'prodd00301000'</SPAN> <SPAN CLASS="atrb">action</SPAN>=<SPAN CLASS="atrbval">'modify'</SPAN> <SPAN CLASS="atrb">wait</SPAN>=<SPAN CLASS="atrbval">'yes'</SPAN>&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">headline</SPAN>/&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">owner</SPAN>/&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt1">
+    &lt;/<SPAN CLASS="elem">defect</SPAN>&gt;
+    </SPAN>
+    <BR>
+    &lt;/<SPAN CLASS="elem">ClearQuest</SPAN>&gt;
+    </P>
+  </LI>
+  <LI>
+    <SPAN CLASS="hili1">Assign defect 'prodd00301000':</SPAN>
+    <P>
+    &lt;<SPAN CLASS="elem">ClearQuest</SPAN> <SPAN CLASS="atrb">login</SPAN>=<SPAN CLASS="atrbval">'cq_user'</SPAN> <SPAN CLASS="atrb">password</SPAN>=<SPAN CLASS="atrbval">'password'</SPAN> <SPAN CLASS="atrb">db</SPAN>=<SPAN CLASS="atrbval">'prodd'</SPAN> <SPAN CLASS="atrb">repo</SPAN>=<SPAN CLASS="atrbval">'prodr'</SPAN>&gt;
+    <BR>
+    <SPAN CLASS="indt1">
+    &lt;<SPAN CLASS="elem">defect</SPAN> <SPAN CLASS="atrb">id</SPAN>=<SPAN CLASS="atrbval">'prodd00301000'</SPAN> <SPAN CLASS="atrb">action</SPAN>=<SPAN CLASS="atrbval">'assign'</SPAN> <SPAN CLASS="atrb">wait</SPAN>=<SPAN CLASS="atrbval">'no'</SPAN>&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">owner</SPAN>&gt;new_owner&lt;/<SPAN CLASS="elem">owner</SPAN>&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">priority</SPAN>&gt;3-Normal Queue&lt;/<SPAN CLASS="elem">priority</SPAN>&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt1">
+    &lt;/<SPAN CLASS="elem">defect</SPAN>&gt;
+    </SPAN>
+    <BR>
+    &lt;/<SPAN CLASS="elem">ClearQuest</SPAN>&gt;
+    </P>
+  </LI>
+  <LI>
+    <SPAN CLASS="hili1">Add a platform to defect 'prodd00301000':</SPAN>
+    <P>
+    &lt;<SPAN CLASS="elem">ClearQuest</SPAN> <SPAN CLASS="atrb">login</SPAN>=<SPAN CLASS="atrbval">'cq_user'</SPAN> <SPAN CLASS="atrb">password</SPAN>=<SPAN CLASS="atrbval">'password'</SPAN> <SPAN CLASS="atrb">db</SPAN>=<SPAN CLASS="atrbval">'prodd'</SPAN> <SPAN CLASS="atrb">repo</SPAN>=<SPAN CLASS="atrbval">'prodr'</SPAN>&gt;
+    <BR>
+    <SPAN CLASS="indt1">
+    &lt;<SPAN CLASS="elem">defect</SPAN> <SPAN CLASS="atrb">id</SPAN>=<SPAN CLASS="atrbval">'prodd00301000'</SPAN> <SPAN CLASS="atrb">action</SPAN>=<SPAN CLASS="atrbval">'modify'</SPAN> <SPAN CLASS="atrb">wait</SPAN>=<SPAN CLASS="atrbval">'no'</SPAN>&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">platform</SPAN> <SPAN CLASS="atrb">behavior</SPAN>=<SPAN CLASS="atrbval">'add'</SPAN>&gt;Linux Unknown Unknown&lt;<SPAN CLASS="elem">platform</SPAN>&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt1">
+    &lt;/<SPAN CLASS="elem">defect</SPAN>&gt;
+    </SPAN>
+    <BR>
+    &lt;/<SPAN CLASS="elem">ClearQuest</SPAN>&gt;
+    </P>
+  </LI>
+  <LI>
+    <SPAN CLASS="hili1">Replace the releases on defect 'prodd00301000':</SPAN>
+    <P>
+    &lt;<SPAN CLASS="elem">ClearQuest</SPAN> <SPAN CLASS="atrb">login</SPAN>=<SPAN CLASS="atrbval">'cq_user'</SPAN> <SPAN CLASS="atrb">password</SPAN>=<SPAN CLASS="atrbval">'password'</SPAN> <SPAN CLASS="atrb">db</SPAN>=<SPAN CLASS="atrbval">'prodd'</SPAN> <SPAN CLASS="atrb">repo</SPAN>=<SPAN CLASS="atrbval">'prodr'</SPAN>&gt;
+    <BR>
+    <SPAN CLASS="indt1">
+    &lt;<SPAN CLASS="elem">defect</SPAN> <SPAN CLASS="atrb">id</SPAN>=<SPAN CLASS="atrbval">'prodd00301000'</SPAN> <SPAN CLASS="atrb">action</SPAN>=<SPAN CLASS="atrbval">'modify'</SPAN> <SPAN CLASS="atrb">wait</SPAN>=<SPAN CLASS="atrbval">'no'</SPAN>&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">planned_release</SPAN>&gt;Release v2.1 IT&lt;<SPAN CLASS="elem">planned_release</SPAN>&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt1">
+    &lt;/<SPAN CLASS="elem">defect</SPAN>&gt;
+    </SPAN>
+    <BR>
+    &lt;/<SPAN CLASS="elem">ClearQuest</SPAN>&gt;
+    </P>
+  </LI>
+  <LI>
+    <SPAN CLASS="hili1">Submit a defect:</SPAN>
+    <P>
+    &lt;<SPAN CLASS="elem">ClearQuest</SPAN> <SPAN CLASS="atrb">login</SPAN>=<SPAN CLASS="atrbval">'cq_user'</SPAN> <SPAN CLASS="atrb">password</SPAN>=<SPAN CLASS="atrbval">'password'</SPAN> <SPAN CLASS="atrb">db</SPAN>=<SPAN CLASS="atrbval">'prodd'</SPAN> <SPAN CLASS="atrb">repo</SPAN>=<SPAN CLASS="atrbval">'prodr'</SPAN>&gt;
+    <BR>
+    <SPAN CLASS="indt1">
+    &lt;<SPAN CLASS="elem">defect</SPAN> <SPAN CLASS="atrb">action</SPAN>=<SPAN CLASS="atrbval">'submit'</SPAN> <SPAN CLASS="atrb">wait</SPAN>=<SPAN CLASS="atrbval">'yes'</SPAN>&gt;
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">component</SPAN>&gt;Component A&lt;/<SPAN CLASS="elem">component&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">description</SPAN>&gt;problem found when you do bad things&lt;/<SPAN CLASS="elem">description&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">headline</SPAN>&gt;problem&lt;/<SPAN CLASS="elem">headline&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">product</SPAN>&gt;Product A&lt;/<SPAN CLASS="elem">product&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">version_reported</SPAN>&gt;v1.2&lt;/<SPAN CLASS="elem">version_reported&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">severity</SPAN>&gt;4-Minor&lt;/<SPAN CLASS="elem">severity&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt1">
+    &lt;/<SPAN CLASS="elem">defect</SPAN>&gt;
+    </SPAN>
+    <BR>
+    &lt;/<SPAN CLASS="elem">ClearQuest</SPAN>&gt;
+    </P>
+  </LI>
+  <!--
+  <LI>
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">file_ver</SPAN>&gt;/main/dev/23&lt;/<SPAN CLASS="elem">file_ver&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">path</SPAN>&gt;projects/productA/ui/src&lt;/<SPAN CLASS="elem">path&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">repository</SPAN>&gt;my_vob&lt;/<SPAN CLASS="elem">repository&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt2">
+    &lt;<SPAN CLASS="elem">user_name</SPAN>&gt;vcsuser&lt;/<SPAN CLASS="elem">user_name&gt;
+    </SPAN>
+    <BR>
+    <SPAN CLASS="indt1">
+    &lt;/<SPAN CLASS="elem">version_control</SPAN>&gt;
+    </SPAN>
+    <BR>
+    &lt;/<SPAN CLASS="elem">ClearQuest</SPAN>&gt;
+    </P>
+  </LI>
+  -->
+</UL>
+</P>
+
+<!--
+### QUICK REFERENCE #######################################################
+-->
+<a name="ref"></a>
+<table width='100%' class='hdr'>
+<tr>
+  <td class='hdrname'>Quick Reference</td>
+  <TD CLASS="hdrnav">
+    <SPAN CLASS="toc">
+      <A HREF="#top">Top</A>
+      &nbsp;|&nbsp;
+      <A HREF="#root">Root</A>
+      &nbsp;|&nbsp;
+      <A HREF="#record">Record</A>
+      &nbsp;|&nbsp;
+      <A HREF="#field">Field</A>
+      &nbsp;|&nbsp;
+      <A HREF="#query">Query</A>
+      &nbsp;|&nbsp;
+      <A HREF="#note">Notes</A>
+      &nbsp;|&nbsp;
+      <A HREF="#example">Examples</A>
+      &nbsp;|&nbsp;
+      <a href='#ref'>Quick Ref</a>
+    </SPAN>
+  </TD>
+</TR>
+</TABLE>
+<p>
+<table border='1' cellspacing='0' cellpadding='3'>
+<tr>
+  <th rowspan='2'>element</th>
+  <th rowspan='2'>sub-elements</th>
+  <th colspan='3'>attributes</th>
+  <th rowspan='2'>notes</th>
+<tr>
+  <th>label</th>
+  <th>required</th>
+  <th nowrap='1'>valid values <sup>1</sup></th>
+</tr>
+<tr>
+  <td rowspan='6'>ClearQuest</td>
+  <td rowspan='6'>defect<br>query</td>
+  <td>login</td>
+  <td>yes</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>password</td>
+  <td>yes</td>
+  <td>&nbsp;</td>
+  <td rowspan='2'>Either the <span class="code">password</span> or <span class="code">encrypted</span> attribute is required.</li>
+</tr>
+<tr>
+  <td>encrypted</td>
+  <td>no</td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>db</td>
+  <td>yes</td>
+  <td>&nbsp;</td>
+  <td rowspan='3'>&nbsp;</td>
+</tr>
+<tr>
+  <td>repo</td>
+  <td>yes</td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>email-fail</td>
+  <td>no</td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td rowspan='3'>defect</td>
+  <td rowspan='3'>any defect field</td>
+  <td>id</td>
+  <td>yes</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>action</td>
+  <td>no</td>
+  <td>
+    <b>view</b>
+    <br>submit
+    <br>assign
+    <br>open
+    <br>resolve
+    <br>validate
+    <br>release
+    <br>approve
+    <br>close
+    <br>re-submit
+    <br>postpone
+    <br>reject
+    <br>request_info
+    <br>supply_info
+  </td>
+  <td>The defect must be in the appropriate state to perform the action.</td>
+</tr>
+<tr>
+  <td>wait</td>
+  <td>no</td>
+  <td>
+    <b>no</b>
+    <br>yes
+  </td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td><i>[defect field]</i></td>
+  <td>&nbsp;</td>
+  <td>behavior</td>
+  <td>no</td>
+  <td>
+    <b>replace</b>
+    <br>add
+    <br>remove
+  </td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td rowspan='2'>query</td>
+  <td rowspan='2'><i>prompt#</i></td>
+  <td>name</td>
+  <td>yes</td>
+  <td>&nbsp;</td>
+  <td>Examples of valid prompt labels are: <span class="code">prompt1</span>, <span class="code">prompt2</span> ...</td>
+</tr>
+<tr>
+  <td>wait</td>
+  <td>no</td>
+  <td>
+    <b>no</b>
+    <br>yes
+  </td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td><i>[prompt#]</i></td>
+  <td>&nbsp;</td>
+  <td>operator</td>
+  <td>no</td>
+  <td><b><i>[web value]</i></b></td>
+  <td>The default operator is dependent upon the field type.  Check the<br>web interface to verify the default value.</td>
+</tr>
+</table>
+<ol>
+  <li>The default value is highlighted in bold.</li>
+</ol>
+</p>
+
+<TABLE WIDTH=100% CLASS="hdr">
+<TR>
+  <TD>
+    <B>Updated:</B>
+    <SCRIPT>
+      <!--
+        document.write( document.lastModified );
+      // -->
+    </SCRIPT>
+  </TD>
+  <TD CLASS="hdrnav">
+    <SPAN CLASS="toc">
+      <A HREF="#top">Top</A>
+      &nbsp;|&nbsp;
+      <A HREF="#root">Root</A>
+      &nbsp;|&nbsp;
+      <A HREF="#record">Record</A>
+      &nbsp;|&nbsp;
+      <A HREF="#field">Field</A>
+      &nbsp;|&nbsp;
+      <A HREF="#query">Query</A>
+      &nbsp;|&nbsp;
+      <A HREF="#note">Notes</A>
+      &nbsp;|&nbsp;
+      <A HREF="#example">Examples</A>
+      &nbsp;|&nbsp;
+      <a href='#ref'>Quick Ref</a>
+    </SPAN>
+  </TD>
+</TR>
+</TABLE>
+</BODY>
+</HTML>

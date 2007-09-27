@@ -1,0 +1,197 @@
+<HTML>
+<HEAD>
+<TITLE>XML Notes</TITLE>
+<STYLE TYPE="text/css">
+A       { color: #990000; }
+A:hover { color: #ff0000; text-decoration: none; }
+BLOCKQUOTE, UL
+        { margin-top: 0; }
+H3, H4  { margin-bottom: 0; }
+H3      { background-color: #ccccff; }
+TD      { vertical-align: top; }
+TD.src  { border-right: thin dotted black; padding-right: 5; }
+.center { text-align: center; }
+.hilite { color: #339900; }
+.src    { font-family: monospace; }
+</STYLE>
+</HEAD>
+<BODY>
+<CENTER>
+  <H2>XML Notes</H2>
+</CENTER>
+
+<TABLE>
+<TR>
+  <TD>
+    <A NAME="name"></A>
+    <H3>Naming Tags</H3>
+    <UL>
+      <LI>must start with a letter (A-Z or a-z) or underscore [A-Za-z_]</LI>
+      <LI>must contain at least one letter</LI>
+      <LI>can contain letters, digits, hyphens, underscores and periods [A-Za-z_.-]</LI>
+    </UL>
+  </TD>
+  <TD>
+    <A NAME="frmd"></A>
+    <H3>Well-Formed Documents</H3>
+    <UL>
+      <LI>have one root element</LI>
+      <LI>no space in the element names</LI>
+      <LI>all elements must be correctly nested and terminated</LI>
+      <LI>are case-sensitive</LI>
+      <LI>enclose all attributes in quotes</LI>
+    </UL>
+  </TD>
+</TR>
+</TABLE>
+
+<A NAME="comps"></A>
+<H3>Main Components Of XML</H3>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0>
+<TR>
+  <TD CLASS="src">&lt;?xml version="1.0" encoding="utf-8"?&gt;</TD>
+  <TD>declaration / Processing Instruction (PI)</TD>
+</TR>
+
+<TR>
+  <TD CLASS="src">&lt;books&gt;</TD>
+  <TD>root element (or root tag)</TD>
+</TR>
+<TR>
+  <TD CLASS="src">&nbsp;&nbsp;&lt;book <SPAN CLASS="hilite">isbn="012345"</SPAN>&gt;</TD>
+  <TD>element <SPAN CLASS="hilite">with attribute</SPAN></TD>
+</TR>
+<TR>
+  <TD CLASS="src">&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;</TD>
+  <TD>element w/o attribute</TD>
+</TR>
+<TR>
+  <TD CLASS="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Book<SPAN CLASS="hilite">&amp;apos;</SPAN>s Title</TD>
+  <TD>PCDATA <SPAN CLASS="hilite"> with entity</SPAN></TD>
+</TR>
+<TR>
+  <TD CLASS="src">&nbsp;&nbsp;&nbsp;&nbsp;&lt;/title&gt;</TD>
+  <TD></TD>
+</TR>
+<TR>
+  <TD CLASS="src">&nbsp;&nbsp;&nbsp;&nbsp;&lt;review/&gt;</TD>
+  <TD>empty element</TD>
+</TR>
+<TR>
+  <TD CLASS="src">&nbsp;&nbsp;&nbsp;&nbsp;&lt;publisher&gt;</TD>
+  <TD></TD>
+</TR>
+<TR>
+  <TD CLASS="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;![CDATA[<SPAN CLASS="hilite">Pub &amp; Pub</SPAN>]]&gt;</TD>
+  <TD>CDATA</TD>
+</TR>
+<TR>
+  <TD CLASS="src">&nbsp;&nbsp;&nbsp;&nbsp;&lt;/publisher&gt;</TD>
+  <TD></TD>
+<TR>
+  <TD CLASS="src">&nbsp;&nbsp;&lt;/book&gt;</TD>
+  <TD></TD>
+</TR>
+<TR>
+  <TD CLASS="src">&lt;books&gt;</TD>
+  <TD></TD>
+</TR>
+</TABLE>
+
+<BR>
+
+<TABLE CELLPADDING=4 CELLSPACING=0 BORDER=1>
+<TR>
+  <TD>
+    <H4>Declaration / Processing Instructions</H4>
+    <UL>
+      <LI>the 1st line</LI>
+      <LI>optional but recommended by the W3C</LI>
+      <LI>can be used to match documents to parsers</LI>
+      <LI>PIs are instructions to the parser or agent reading the document</LI>
+      <LI>not part of the document</LI>
+      <LI>links XML to other applications</LI>
+    </UL>
+  </TD>
+  <TD>
+    <H4>Root</H4>
+    <UL>
+      <LI>must have a unique name</LI>
+      <LI>links the document to other documents</LI>
+    </UL>
+  </TD>
+</TR>
+<TR>
+  <TD>
+    <H4>Element</H4>
+    <UL>
+      <LI>defines the content of the XML doc</LI>
+      <LI>can contain other elements</LI>
+      <LI>can contain text (aka "parseable character data" or PCDATA)</LI>
+      <LI>can be empty</LI>
+    </UL>
+  </TD>
+  <TD>
+    <H4>Attribute</H4>
+    <UL>
+      <LI>adds data about the element</LI>
+      <LI>similar to fields in database tables</LI>
+      <LI>cannot be repeated</LI>
+    </UL>
+  </TD>
+</TR>
+<TR>
+  <TD>
+    <H4>PCDATA</H4>
+    <UL>
+      <LI>parseable character data</LI>
+    </UL>
+  </TD>
+  <TD>
+    <H4>CDATA</H4>
+    <UL>
+      <LI CLASS="src">&lt;release&gt;&lt;![CDATA[Release 1 &amp; 2]]&gt;&lt;/release&gt;</LI>
+      <LI>technique for bypassing the XML parser</LI>
+      <LI>handles XML reserved characters</LI>
+    </UL>
+  </TD>
+</TR>
+<TR>
+  <TD>
+    <H4>Entity</H4>
+    <TABLE>
+    <TR>
+      <TD>
+        <UL>
+          <LI>predefined shortcut</LI>
+          <LI>similar to variables</LI>
+          <LI>XML has predefined entities</LI>
+        </UL>
+      </TD>
+      <TD>
+        <BLOCKQUOTE>
+          <TABLE CELLSPACING=0 BORDER=1 CLASS="center">
+          <TR><TH>Entity</TH><TH>Meaning</TH></TR>
+          <TR><TD>&amp;lt;</TD><TD>&lt;</TD>
+          <TR><TD>&amp;gt;</TD><TD>&gt;</TD>
+          <TR><TD>&amp;amp;</TD><TD>&amp;</TD>
+          <TR><TD>&amp;quot;</TD><TD>&quot;</TD>
+          <TR><TD>&amp;apos;</TD><TD>&apos;</TD>
+          </TABLE>
+        </BLOCKQUOTE>
+      </TD>
+    </TR>
+    </TABLE>
+  </TD>
+  <TD>
+    <H4>Comments</H4>
+    <UL>
+      <LI>same syntax as HTML</LI>
+      <LI>more than two hypens are illegal</LI>
+    </UL>
+  </TD>
+</TR>
+</TABLE>
+
+</BODY>
+</HTML>

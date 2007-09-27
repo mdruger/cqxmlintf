@@ -1,0 +1,57 @@
+/* GENERIC */
+a:hover { background-color: #eef; color: #c00; text-decoration: none; }
+a img   { border: 0px; }
+body    { border-bottom: 1px solid #99c; margin-top: 0px; }
+code    { color: #00a; font-style: normal; }
+code b  { background-color: #eef; font-weight: normal; }
+h2      { text-align: center; }
+h3      { background-color: #eef; border-bottom: 1px solid #99c; }
+h4      { font-size: 105%; margin-bottom: 0px; }
+td      { vertical-align: top; }
+
+/* ELEMENT NAMED */
+td.brdrl    { border-left: 1px solid #ddf; padding-left: 10px; }
+tr.hdr th   { background-color: #eee; }
+
+/* PAGE HEADERS */
+table.hdr    { background-color: #eef; border-bottom: 1px solid #99c; width: 100%; }
+table.hdr td { font-size: 75%; vertical-align: bottom; }
+table.hdr th { background-color: #eef; font-size: 150%; }
+
+/* TABLE OF CONTENTS */
+body.toc             { border-bottom: none; }
+body.toc ul          { list-style: none; }
+body.toc ul li       { font-size: 120%; font-weight: bold; padding: 5px 0px; }
+body.toc ul li a     { color: #000; text-decoration: none; }
+body.toc ul li a img { margin-right: 10px; }
+
+/* FLOW ORDERED LIST */
+ol.flow li:hover { background-color: #eef; }
+ol.flow li tt    { color: #00a; font-family: monospace; display: inline; position: absolute; right: 8px; }
+ol.flow ul       { list-style-type: disc; }
+ol.flow ol       { list-style-type: lower-alpha; }
+
+/* FILE LIST TABLE */
+table.files     { border-collapse: collapse; margin-left: 10px; }
+table.files tr td, table.files tr th
+                { border-top: 1px solid #eef; padding: 5px 0px; }
+table.files th  { color: #00a; font: normal 100% monospace; padding-right: 10px ! important; text-align: left; vertical-align: top; }
+table.files tr:hover * { background-color: #eef; }
+
+/* KNOWN BUGS */
+body.bugs p         { margin: 5px 20px; }
+body.bugs p.intro   { margin: 16px 0px; }
+
+/* LINKS */
+body.links a        { color: #000; font-weight: bold; text-decoration: none; }
+body.links a img    { margin-right: 10px; }
+body.links p        { margin: 2px 15px 16px 30px; }
+body.links p.intro  { margin: 16px 0px; }
+body.links p a      { font-weight: normal; text-decoration: underline; }
+
+/* NAMED */
+.code   { color: #00a; font-family: monospace; }
+.copy   { background-color: #eef; border-top: 1px solid #99c; font-size: 8pt; margin-top: 20px; text-align: center; width: 100%; }
+.note   { font-size: 80%; font-style: italic; }
+.sep    { border-top: 1px solid #99c; width: 100%; }
+.warn   { color: #b00; }

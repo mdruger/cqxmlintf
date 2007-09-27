@@ -1,0 +1,77 @@
+<html>
+<head>
+<title>CQ/XML - Interface User Guide</title>
+<link rel='stylesheet' type='text/css' href='cqxmldocs.css'/>
+</head>
+
+<body>
+<center>
+  <h1>ClearQuest/XML Interface User Guide</h1>
+</center>
+
+<h2>Introduction</h2>
+<p>
+The ClearQuest XML (CQ/XML) Interface provides an interface to ClearQuest
+that allows you to both read <i>and write</i> to the ClearQuest database.
+The CQ/XML Interface sits on top of the ClearQuest application layer so
+ClearQuest business rules are still enforced.
+</p>
+<p>
+CQ/XML communicates via XML over sockets.  If you don't know either of
+those technologies, you're in luck.  A good XML introduction is available
+via 
+<a href='http://www.xml.com/pub/a/98/10/guide0.html'>O'Reilly's XML.com web site</a> or
+<a href='http://en.wikipedia.org/wiki/XML'>Wikipedia</a>
+and we have written a
+<a href='cqclient.pl.txt'>sample Perl script utilizing sockets</a>.
+
+<h2>Table of Contents</h2>
+<ol class='toc'>
+  <li><a href='connect.html' class='toc'>Connecting to the CQ/XML Server</a></li>
+  <li><a href='rootelem.html' class='toc'>ClearQuest Root Element</a></li>
+  <ol type='a'>
+    <li><a href='defect.html' class='toc'>Defect Elements</a></li>
+    <ul>
+      <li><a href='field.html' class='toc'>Field Elements</a></li>
+    </ul>
+    <li><a href='note.html' class='toc'>Note Elements</a></li>
+    <li><a href='sr.html' class='toc'>Service_Request Elements</a></li>
+    <li><a href='query.html' class='toc'>Query Elements</a></li>
+    <ul>
+      <li><a href='prompt.html' class='toc'>Prompt Elements</a></li>
+      <li><a href='qfield.html' class='toc'>Query Field Elements</a></li>
+    </ul>
+    <li><a href='info.html' class='toc'>Info Elements</a></li>
+    <li><a href='sql.html' class='toc'>SQL Elements</a></li>
+  </ol>
+  <li><a href='common.html' class='toc'>Common Issues, Mistakes &amp; Caveats</a></li>
+</ol>
+
+<h2>Resources</h2>
+<ul class='toc'>
+  <li><a href='http://www.xml.com/pub/a/98/10/guide0.html'>XML.com: A Technical Introduction to XML</a></li>
+  <li><a href='http://en.wikipedia.org/wiki/XML'>Wikipedia - Extensible Markup Language</a></li>
+  <li><a href='cqclient.pl.txt'>sample Perl CQ/XML script</a></li>
+  <li>See also: 
+    <a href='archive/index.html'>CQ/XML documentation archive</a>
+  </li>
+</ul>
+
+<div class='copy copyhdr'>
+  Copyright 2005 Mentor Graphics Corporation
+  <div class='copy'>
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at<br>
+  <br>
+      <a href='http://www.apache.org/licenses/LICENSE-2.0' target='cqxml_apache'>http://www.apache.org/licenses/LICENSE-2.0</a><br>
+  <br>
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES<br>OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  </div>
+</div>
+</body>
+</html>

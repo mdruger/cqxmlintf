@@ -1,0 +1,330 @@
+<html>
+<head>
+<title>CQ/XML - Common Issues, Mistakes &amp; Caveats</title>
+<link rel='stylesheet' type='text/css' href='cqxmldocs.css'/>
+</head>
+
+<body>
+<center>
+  <h1>ClearQuest/XML Interface User Guide</h1>
+</center>
+
+<h2>Common Issues, Mistakes &amp; Caveats</h2>
+<p>
+<table>
+<tr>
+  <td>
+    <ol class='toc'>
+      <li><a href='#rootelem'>ClearQuest Root Element</a></li>
+      <ol type='a'>
+        <li><a href='#defect'>Defect Elements</a></li>
+        <ul>
+          <li><a href='#field'>Field Elements</a></li>
+        </ul>
+        <li><a href='#note'>Note Elements</a></li>
+        <li><a href='#sr'>Service_Request Elements</a></li>
+        <li><a href='#query'>Query Elements</a></li>
+        <ul>
+          <li><a href='#prompt'>Prompt Elements</a></li>
+          <li><a href='#qfield'>Query Field Elements</a></li>
+        </ul>
+        <li><a href='#info'>Info Elements</a></li>
+        <li><a href='#sql'>SQL Elements</a></li>
+      </ol>
+    </ol>
+  </td>
+  <td valign='top'>
+    <ol class='toc' start='2'>
+      <li><a href='#misc'>Miscellaneous</a></li>
+      <ul>
+        <li><a href='#misc_xml'>XML</a></li>
+        <li><a href='#misc_enc'>Encryption</a></li>
+        <li><a href='#misc_perm'>Permissions</a></li>
+        <li><a href='#misc_verf'>Verification</a></li>
+      </ul>
+    </ol>
+  </td>
+</tr>
+</table>
+</p>
+
+<a name='rootelem'></a>
+<h2>ClearQuest Root Element</h2>
+<ul>
+  <li>Since the '<span class='inline'>password</span>' or '<span class='inline'>encrypted</span>' attribute of the <a href="rootelem.html">ClearQuest root element</a> is required, it must contain a value.  In other words, <i>blank passwords are not permitted</i>.</li>
+  <li>The '<span class='inline'>password</span>' or '<span class='inline'>encrypted</span>' value cannot contain the greater-than symbol ('<span class='src'>&gt;</span>').</li>
+  <li>The '<span class='inline'>email-fail</span>' attribute will force the CQ/XML Interface to send email only if two conditions are met:</li>
+  <ol>
+    <li>An error occurs in the command.</li>
+    <li>The command is set with '<span class='inline'>wait="no"</span>' (or '<span class='inline'>wait</span>' is not set).</li>
+  </ol>
+  <li class='hilite'>Although the CQ/XML Interface can prohibit actions against defects based on its <a href='common.html#misc_perm'>permissions model</a>, it is still possible to corrupt a large number of defects rather quickly if you are not careful.  Therefore, before deploying into production you should <b>do all development and testing against the practice database</b> (<span class='src'><span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span></span>).  If you corrupt data in the <i>production</i> database <b>we will be unable to back out the changes you have introduced</b>.</li>
+  <li>ClearQuest email notification works through the CQ/XML Interface just like the ClearQuest web interface.</li>
+  <ul>
+    <li>ClearQuest record <a href='http://engrdocs.site/clearquest/notification.html'>modifications that cause ClearQuest to send email</a> will still send email.</li>
+    <li>Email to customers through the CQ/GTS Interface will still be sent.</li>
+  </ul>
+</ul>
+
+<a name='defect'></a>
+<h2>Defect Elements</h2>
+<ul>
+  <li>You can't create DEIs from SRs via the CQ/XML Interface.</li>
+  <li>You can't link a DEI to a SR via the CQ/XML Interface.</li>
+  <li>If you don't specify fields when '<span class='inline'>action="view"</span>', the CQ/XML Interface will return <b><i>all</i></b> of the defect's fields.  Trust us, you don't want that.</li>
+  <li>The '<span class='inline'>wait</span>' attribute is optional but defaults to '<span class='inline'>no</span>'.</li>
+  <li>The '<span class='inline'>id</span>' attribute is always required.</li>
+  <ul>
+    <li>When submitting a defect, use: '<span class='inline'>id="0"</span>'.</li>
+  </ul>
+  <li>
+    Record elements may not be processed in order.  In the following example, the '<span class='inline'>open</span>' may be attempted before the '<span class='inline'>assign</span>'.
+    <blockquote class='src'>
+      &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span>&gt;
+        <br>&nbsp;&nbsp;
+        &lt;<span class="elem">defect</span> <span class="atrb">id</span>=<span class="atrbval">'pract00301000'</span> <span class="atrb">action</span>=<span class="atrbval">'assign'</span> <span class="atrb">wait</span>=<span class="atrbval">'yes'</span>&gt;
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;
+        &lt;<span class="elem">priority</span>&gt;3-Normal Queue&lt;/<span class="elem">priority</span>&gt;
+        <br>&nbsp;&nbsp;
+        &lt;/<span class="elem">defect</span>&gt;
+        <br>&nbsp;&nbsp;
+        &lt;<span class="elem">defect</span> <span class="atrb">id</span>=<span class="atrbval">'pract00301000'</span> <span class="atrb">action</span>=<span class="atrbval">'open'</span> <span class="atrb">wait</span>=<span class="atrbval">'yes'</span>/&gt;
+      <br>
+      &lt;/<span class="elem">ClearQuest</span>&gt;
+    </blockquote>
+  </li>
+  <li>Although all record types can be queried via the CQ/XML Interface, only defect records can be accessed for viewing or modification.</li>
+  <li>To update a defect without changing its state, use the '<span class='inline'>modify</span>' action.</li>
+</ul>
+
+<a name='field'></a>
+<h2>Field Elements</h2>
+<ul>
+  <li>It is possible to only add one standard note per action via the CQ/XML Interface.</li>
+  <ul>
+    <li>To add a standard note, use the '<span class='inline'>note_entry</span>' and '<span class='inline'>note_type</span>' fields and optionally the '<span class='inline'>note_summary</span>' field.</li>
+  </ul>
+  <li>The default '<span class='inline'>behavior</span>' for all fields is '<span class='inline'>replace</span>'.</li>
+  <li>The '<span class='inline'>replace</span>' behavior will replace an entire list or multi-line field.</li>
+  <ul>
+    <li>If you '<span class='inline'>replace</span>' a list, all values in the list will be removed and the new one added.</li>
+  </ul>
+  <li>
+    Field elements may not be processed in order.  In the following example, the '<span class='inline'>replace</span>' may perform <i>after</i> the '<span class='inline'>add</span>'.
+    <blockquote class='src'>
+      &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span>&gt;
+        <br>&nbsp;&nbsp;
+        &lt;<span class="elem">defect</span> <span class="atrb">id</span>=<span class="atrbval">'pract00301000'</span> <span class="atrb">action</span>=<span class="atrbval">'view'</span> <span class="atrb">wait</span>=<span class="atrbval">'no'</span>&gt;
+          <br>&nbsp;&nbsp;&nbsp;&nbsp;
+          &lt;<span class="elem">platform</span> <span class='atrb'>behavior</span>=<span class='atrbval'>'replace'</span>&gt;Linux Red Hat Ent 3 x86&lt;/<span class="elem">platform</span>&gt;
+          <br>&nbsp;&nbsp;&nbsp;&nbsp;
+          &lt;<span class="elem">platform</span> <span class='atrb'>behavior</span>=<span class='atrbval'>'add'</span>&gt;Linux SuSE SLES 8 x86&lt;/<span class="elem">platform</span>&gt;
+        <br>&nbsp;&nbsp;
+        &lt;/<span class="elem">defect</span>&gt;
+      <br>
+      &lt;/<span class="elem">ClearQuest</span>&gt;
+    </blockquote>
+  </li>
+  <li>Field element names match the field names as saved in the ClearQuest database, not the ClearQuest forms.  For example, the field on the form labelled '<span class='inline'>DEI Type</span>' is saved in the database as '<span class='inline'>defect_type</span>'.</li>
+  <ul>
+    <li>A complete list of fields and their corresponding database column names is available via the <a href='http://engrdocs.site/clearquest/datadictionary.html'>ClearQuest Data Dictionary</a>.  Alternatively, within ClearQuest click on the field label and the database column will be displayed as '<span class='inline'>DB Field Name</span>'.</li>
+  </ul>
+  <li>Recall that the schema auto-selects a reported version during the '<span class='inline'>Submit</span>' action.  To override this behavior, use the '<span class='inline'>version_reported_list</span>' field to specify a version or explicitly empty '<span class='inline'>version_reported_list<span>'.
+    <table>
+    <tr><td class='data'><b>Example #1:</b></td>
+      <td class='data src'>
+        &lt;<span class="elem">version_reported_list</span>&gt;v1.0&lt;/<span class="elem">version_reported_list</span>&gt;
+      </td>
+    </tr>
+    <tr><td class='data'><b>Example #2:</b></th>
+      <td class='data src'>
+      &lt;<span class="elem">version_reported</span>&gt;v1.0&lt;/<span class="elem">version_reported</span>&gt;
+      <br>
+      &lt;<span class="elem">version_reported_list</span> /&gt;
+      </td>
+    </tr></table>
+  </li>
+</ul>
+
+<a name='note'></a>
+<h2>Note Elements</h2>
+<ul>
+  <li>New notes must be created from defect records.</li>
+  <ul>
+    <li>To do this, use the '<span class='inline'>defect</span>' record and update the '<span class='inline'>Note_Entry</span>',
+    '<span class='inline'>note_customer</span>', '<span class='inline'>note_release</span>' and/or '<span class='inline'>note_resolution</span>' fields.</li>
+  </ul>
+</ul>
+
+<a name='sr'></a>
+<h2>Service_Request Elements</h2>
+<ul>
+  <li>service_request records can only be <i>read</i> via the CQ/XML Interface.</li>
+  <ul>
+    <li>Creating new service_request links or modifying existing service_request records can only be done through the ClearQuest web interface.</li>
+  </ul>
+</ul>
+
+<a name='query'></a>
+<h2>Query Elements</h2>
+<ul>
+  <li>The '<span class='inline'>wait</span>' attribute is optional but defaults to '<span class='inline'>no</span>'.  (Which admittedly, is not very useful.)</li>
+  <li>When running a query, the query's full path and name must be specified (i.e. '<span class='inline'>Public Queries/Record Queries/All Divisions</span>').</li>
+  <li>Any record type may be queried.</li>
+  <li>Running reports is not supported.</li>
+</ul>
+
+<a name='prompt'></a>
+<h2>Prompt Elements</h2>
+<ul>
+  <li>
+    When overriding the '<span class='inline'>operator</span>' on multiple values of one field, all of the operators must match.
+    <br>
+    Example:
+    <blockquote class="src">
+      &lt;<span class="elem">prompt1</span> <span class="atrb">operator</span>=<span class="atrbval">'Does Not Equal'</span>&gt;Closed&lt;/<span class="elem">prompt1</span>&gt;
+      <br>
+      &lt;<span class="elem">prompt1</span> <span class="atrb">operator</span>=<span class="atrbval">'Does Not Equal'</span>&gt;Postponed&lt;/<span class="elem">prompt1</span>&gt;
+    </blockquote>
+  </li>
+</ul>
+
+<a name='qfield'></a>
+<h2>Query Field Elements</h2>
+<ul>
+  <li>You cannot add multi-line strings to query output via query field
+  elements.  A multi-line string is any field greater than 256 characters
+  such as '<span class='inline'>description</span>', 
+  '<span class='inline'>history_log</span>' or
+  '<span class='inline'>version_reported</span>'.
+  </li>
+</ul>
+
+<a name='info'></a>
+<h2>Info Elements</h2>
+<ul>
+  <li>Using the '<span class='inline'>dynamic</span>' or '<span class='inline'>record</span>' attributes with the '<span class='inline'>type</span>' attribute set to one of the '<span class='inline'>* Queries</span>' values, may degrade performance.</li>
+</ul>
+
+<a name='sql'></a>
+<h2>SQL Elements</h2>
+<ul>
+  <li>SQL elements can only be used to read (<span class='inline'>select</span>) from the database.</li>
+</ul>
+
+<a name='misc'></a>
+<h2>Miscellaneous</h2>
+<a name='misc_xml'></a>
+<h3>XML</h3>
+<ul>
+  <li>The XML returned by the server may not be well-formed.  This can occur under three conditions:</li>
+  <ol>
+    <li>If one of the field values returned by ClearQuest has XML reserved characters such as '&lt;' or '&amp;'.</li>
+    <li>If there is an error with the XML sent to the server, the server will return an error and indicate where in the XML the problem occurred.</li>
+    <li>If you are running a query with renamed columns, the column names will be passed through unmodified.  Therefore, invalid characters (like space or punctuation) may appear in element names.</li>
+  </ol>
+  <li>CDATA and Internal Entities are supported.</li>
+  <li>Processing instructions (PIs) are ignored.</li>
+  <li>Document type declarations (DTDs), External and Parameter Entities are not supported.</li>
+</ul>
+
+<a name='misc_enc'></a>
+<h3>Encryption</h3>
+<ul>
+  <li>The CQ/XML Interface supports RC4 encryption of passwords, see <a href='rootelem.html'>ClearQuest Root Element</a>.
+  <li>Before using an encrypted password, you must synchronize your encryption key with a <a href='mailto:cqsupport@mentor.com'>ClearQuest admin</a>.
+</ul>
+
+<a name='misc_perm'></a>
+<h3>Permissions</h3>
+<ul>
+  <li>
+    To prevent users from overwriting the wrong defects, the CQ/XML Interface will only allow users to update defects based on the following hierarchy:
+    <ol>
+      <li>Is the current user in the defect's <b>component's responsible</b> list?</li>
+      <li>Is the current user in the defect's <b>product's responsible</b> list?</li>
+      <li>Is the current user the defect's <b>owner</b>?</li>
+      <li>Is the current user the defect's <b>submitter</b>?</li>
+      <li>Has the client <b>IP address</b> been given permission to write to the defect based on agreed upon criteria?</li>
+      <li>Has the <b>current user</b> been given permission to write to the defect based on agreed upon criteria?</li>
+    </ol>
+  </li>
+  <li>To get permission to modify defects against a product or component which does not have the current user in the responsible list, either contact the product or component owner and asked to be added to the appropriate responsible list or have the product or component owner contact a <a href='mailto:cqsupport@mentor.com'>ClearQuest admin</a> to allow a specific IP address or user to update defects against their product or component.
+</ul>
+
+<a name='misc_verf'></a>
+<h3>Verification</h3>
+<ul>
+  <div class='fr'>
+    <img src='common01.jpg'/>
+    <div class='fc'>
+      <caption>Image 1</caption>
+    </div>
+  </div>
+  <li>Whenever the CQ/XML Interface performs an action that forces ClearQuest to update the '<span class='inline'>History Log</span>', ClearQuest will record the CQ/XML transaction number (cqtan) in the history as seen in <i>Image 1</i>.  You can use the '<span class='inline'>cqtan</span>' to look-up the full CQ/XML command in the CQ/XML logs.</li>
+  <li>
+    The CQ/XML servers record all transactions in logs available via the following locations:
+    <blockquote>
+      <table cellspacing='0' cellpadding='2' border='1'>
+      <tr>
+        <th>Purpose</th>
+        <th>Access&nbsp;Method</th>
+        <th>Location</th>
+      </tr>
+      <tr>
+        <td rowspan='3'>Practice</td>
+        <td>Unix/Linux</td>
+        <td class='src'>/wv/cqxmllogs_practice</td>
+      </tr>
+      <tr>
+        <!-- <td rowspan='2/3'/> -->
+        <td>Web</td>
+        <td class='src'>
+        <a href='http://svr-orw-dts-qa6.site/cqxmllogs_practice'>
+        http://svr-orw-dts-qa6.site/cqxmllogs_practice</a>
+        </td>
+      </tr>
+      <tr>
+        <!-- <td rowspan='3/3'/> -->
+        <td>Windows</td>
+        <td class='src'>\\sitesite\dfs\cqxmllogs_practice</td>
+      </tr>
+      <tr>
+        <td rowspan='3'>Production</td>
+        <td>Unix/Linux</td>
+        <td class='src'>/wv/cqxmllogs</td>
+      </tr>
+      <tr>
+        <!-- <td rowspan='2/3'/> -->
+        <td>Web</td>
+        <td class='src'>
+          <a href='http://cqmsgsvr.site/cqxmllogs'>
+          http://cqmsgsvr.site/cqxmllogs</a>
+        </td>
+      </tr>
+      <tr>
+        <!-- <td rowspan='3/3'/> -->
+        <td>Windows</td>
+        <td class='src'>\\sitesite\dfs\cqxmllogs</td>
+      </tr>
+      </table>
+    </blockquote>
+    <ul>
+      <li>The logs named '<span class='src inline'>cqxi_l*.xml</span>' record transactions from the <u>L</u>ive server.</li>
+      <li>The logs named '<span class='src inline'>cqxi_q*.xml</span>' record transactions from the <u>Q</u>ueue server.</li>
+      <li>The use of the live server versus the queue server is determined by the '<span class='inline'>wait</span>' attribute.  See the <a href='defect.html'>defect element</a> or <a href='query.html'>query element</a> chapters for more details.</li>
+      <li>The latest log will have the highest number.</li>
+    </ul>
+  </li>
+</ul>
+
+<!-- footer -->
+<table class='ftr'>
+<tr>
+  <td class='ftrl'><a href='sql.html' class='ftr'><img src='arrow-l.gif'/> SQL Elements</a></td>
+  <td class='ftrc'><a href='index.html' class='ftr'><img src='arrow-u.gif'/> Table of Contents</a></td>
+  <td class='ftrr'>&nbsp;</td>
+</tr>
+</table>
+</body>
+</html>

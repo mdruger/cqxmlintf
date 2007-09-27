@@ -1,0 +1,32 @@
+<html>
+<head>
+<title>Patching a CQ/XML Server</title>
+<link rel='stylesheet' type='text/css' href='admin.css' />
+<link rel='shortcut icon' href='pics/wrench_orange.png' />
+</head>
+
+<body>
+<table class='hdr'>
+<tr>
+  <td><a href='admin.html'>&#171; CQ/XML Admin Docs</a></td>
+  <th>Patching a CQ/XML Server</th>
+  <td align='right'><b>Updated:</b> <script>document.write( document.lastModified );</script></td>
+</tr>
+</table>
+
+<ol>
+  <li>From ClearCase, copy the new files to an empty directory that is accesible from the CQ/XML server.</li>
+  <ul>
+    <li>I always create a subdirectory in <code>//ace/ce_svr/ChangeManagement/Interface/cqxmlintf/release</code></li>
+    <li class='warn'>Henceforth, this directory will be referred to as '<code>[srcdir]</code>'.</li>
+  </ul>
+  <li>Login to the server with root privileges.</li>
+  <li>Run <code>/opt/cqxmlintf/cprls2svr.pl -d [srcdir]</code></li>
+  <ul>
+    <li>This script will copy the files and stop the currently running CQ/XML Interface process.</li>
+    <li>The CQ/XML Interface will restart within 5 minutes.</li>
+  </ul>
+</ol>
+
+</body>
+</html>

@@ -1,0 +1,157 @@
+<html>
+<head>
+<title>CQ/XML - SQL Elements</title>
+<link rel='stylesheet' type='text/css' href='cqxmldocs.css'/>
+</head>
+
+<body>
+<center>
+  <h1>ClearQuest/XML Interface User Guide</h1>
+</center>
+
+<h2>SQL Elements</h2>
+<p>
+SQL elements allow you to run raw SQL
+  <span class='inline'>select</span> statements
+against the ClearQuest database.  With SQL elements you can gather data from any table in ClearQuest or count rows of data for reporting.  SQL elements have no required element and one optional element.
+<center>
+  <table cellspacing='0' cellpadding='2' width='80%' border='1'>
+  <tr>
+    <th>Optional&nbsp;Attribute</th>
+    <th>Description</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td>wait</td>
+    <td>Should the action be performed now or queued up for later?</td>
+    <td>
+      <li>valid values: yes, no</li>
+      <li>if no value is specified '<span class='inline'>no</span>' is assumed</li>
+    </td>
+  </tr>
+  </table>
+</center>
+</p>
+<p>
+For details on generating the actual SQL to run against the ClearQuest database, see the document 
+'<a href='http://engrdocs.site/clearquest/reporting.html'>Accessing the ClearQuest Read-Only Database</a>'.  Although the CQ/XML Interface does not run against the read-only database, this document accurately describes the structures of the ClearQuest production database.
+</p>
+
+<h2>SQL Element Examples</h2>
+<p>
+<table cellspacing='0' cellpadding='2' border='0'>
+<tr>
+  <td class='data brdr'>Return defect ids owned by a user:</td>
+  <td class='data src brdr'>
+    &lt;<span class="elem">sql</span> <span class="atrb">wait</span>=<span class="atrbval">"yes"</span>&gt;
+<pre>
+  SELECT defect.id
+  FROM   cqschema.defect defect,
+         cqschema.users owner
+  WHERE  defect.owner = owner.dbid
+         AND owner.login_name = 'cq_user'
+</pre>
+    &lt;/<span class="elem">sql</span>&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data brdr'>Return the <i>number</i> of defects owned by a user:</td>
+  <td class='data src brdr'>
+    &lt;<span class="elem">sql</span> <span class="atrb">wait</span>=<span class="atrbval">"yes"</span>&gt;<br>
+<pre>
+  SELECT count(*)
+  FROM   cqschema.defect defect,
+         cqschema.users owner
+  WHERE  defect.owner = owner.dbid
+         AND owner.login_name = 'cq_user'
+</pre>
+    &lt;/<span class="elem">sql</span>&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data brdr'>Return defects owned by a user, sorted by severity:</td>
+  <td class='data src brdr'>
+    &lt;<span class="elem">sql</span> <span class="atrb">wait</span>=<span class="atrbval">"yes"</span>&gt;<br>
+<pre>
+  SELECT   defect.id, defect.severity
+  FROM     cqschema.defect defect,
+           cqschema.users owner
+  WHERE    defect.owner = owner.dbid
+           AND owner.login_name = 'cq_user'
+  ORDER BY defect.severity
+</pre>
+    &lt;/<span class="elem">sql</span>&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'>Return the number of defects a user owns in each state:</td>
+  <td class='data src'>
+    &lt;<span class="elem">sql</span> <span class="atrb">wait</span>=<span class="atrbval">"yes"</span>&gt;<br>
+<pre>
+  SELECT   state.name, count(defect.state)
+  FROM     cqschema.defect defect,
+           cqschema.users owner,
+           cqschema.statedef state
+  WHERE    defect.owner = owner.dbid
+           AND owner.login_name = 'cq_user'
+           AND defect.state = state.id
+  GROUP BY state.name
+</pre>
+    &lt;/<span class="elem">sql</span>&gt;
+  </td>
+</tr>
+</table>
+</p>
+
+<h2>Putting It Together</h2>
+<p>
+Using the information from the previous chapters, here's how you would perform a standard 'sql' task:
+</p>
+<p>
+Return all defects owned by a user with relevant information about each defect:
+<br>
+<span class='src'>
+  &nbsp;&nbsp;
+  &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;<span class="elem">sql</span> <span class="atrb">wait</span>=<span class="atrbval">"yes"</span>&gt;
+<pre>
+       SELECT defect.id, state.name, defect.priority
+       FROM   cqschema.defect defect,
+              cqschema.users owner,
+              cqschema.statedef state
+       WHERE  defect.owner = owner.dbid
+              AND owner.login_name = 'cq_user'
+              AND defect.state = state.id
+</pre>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;/<span class="elem">sql</span>&gt;
+  </td>
+  <br>&nbsp;&nbsp;
+  &lt;/<span class="elem">ClearQuest</span>&gt;
+</span>
+</p>
+
+<h2>Caveats</h2>
+<p>
+<ul>
+  <li>SQL elements can only be used to read (<span class='inline'>select</span>) from the database.</li>
+</ul>
+</p>
+
+<h2>Up Next</h2>
+<p>
+The next chapter,
+<a href='common.html'>Common Issues, Mistakes &amp; Caveats</a>, will cover the most common issues that adversely affect new users of the CQ/XML Interface.
+</p>
+
+<!-- footer -->
+<table class='ftr'>
+<tr>
+  <td class='ftrl'><a href='info.html' class='ftr'><img src='arrow-l.gif'/> Info Elements</a></td>
+  <td class='ftrc'><a href='index.html' class='ftr'><img src='arrow-u.gif'/> Table of Contents</a></td>
+  <td class='ftrr'><a href='common.html' class='ftr'>Common Mistakes <img src='arrow-r.gif'/></a></td>
+</tr>
+</table>
+</body>
+</html>

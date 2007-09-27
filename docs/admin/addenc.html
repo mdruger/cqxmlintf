@@ -1,0 +1,80 @@
+<html>
+<head>
+<title>Adding an Encryption Key</title>
+<link rel='stylesheet' type='text/css' href='admin.css' />
+<link rel='shortcut icon' href='pics/key.png' />
+</head>
+
+<body>
+<table class='hdr'>
+<tr>
+  <td><a href='admin.html'>&#171; CQ/XML Admin Docs</a></td>
+  <th>Adding an Encryption Key</th>
+  <td align='right'><b>Updated:</b> <script>document.write( document.lastModified );</script></td>
+</tr>
+</table>
+
+<h3>Modification Process</h3>
+<ol>
+  <li><a href='login.html'>Login to the server as <code>cqxmlusr</code></a></li>
+  <li>Edit the file <code>/opt/cqxmlintf/data/enckeys.xml</code></li>
+  <li>Save the file.</li>
+  <li>Logout.</li>
+</ol>
+
+<h3>The Encryption Keys File</h3>
+The encryption keys file will look like the following:
+    <pre>
+      &lt;Encrypt&gt;
+        &lt;iplist&gt;
+          &lt;ip192.168.0.1&gt;key1&lt;/ip192.168.0.1&gt;
+          &lt;ip192.168.0.2&gt;key2&lt;/ip192.168.0.2&gt;
+          &lt;ip192.168.0.3&gt;key3&lt;/ip192.168.0.3&gt;
+        &lt;/iplist&gt;
+        &lt;userlist&gt;
+          &lt;login1&gt;key4&lt;/login1&gt;
+          &lt;login2&gt;key5&lt;/login2&gt;
+          &lt;login3&gt;key6&lt;/login3&gt;
+        &lt;/userlist&gt;
+      &lt;/Encrypt&gt;</pre>
+Notice that the XML document is divided into two sections: <code>iplist</code> and <code>userlist</code>.
+
+<h3>iplist</h3>
+<p>
+The <code>iplist</code> section is used to tie encryption keys to an ip address.  This is commonly used for web servers or other stand-alone machines that CQ/XML customers have created.
+</p>
+<p>
+To add a new ip-based encryption key, insert a new line anywhere within the <code>iplist</code> section.  <code>iplist</code> sub-elements use the following format/syntax:
+</p>
+<blockquote>
+  <code>
+    <b>&lt;</b> + <b>ip</b> + <b>[address]</b> + <b>&gt;</b>
+    + <b>[encryption key]</b>
+    + <b>&lt;/</b> + <b>ip</b> + <b>[address]</b> + <b>&gt;</b>
+  </code>
+</blockquote>
+<p>
+Notice that the actual ip address used as the element name is preceeded with the string '<code>ip</code>'.  Failure to adhere to this convention will create invalid XML elements.  (XML elements must start with a letter or underscore.)  Invalid XML in the encryption keys file causes the XML parser to go into deep recursion whenever it tries to read the file.  The CQ/XML Interface tries to read the file when it changes.  In other words, the CQ/XML Interface will crash the first time somebody sends a request.
+</p>
+<p>
+Also note that the encryption key itself cannot have a greater-than symbol.  The same thing will happen - bad XML, parsing recursion, crash.
+</p>
+<h3>userlist</h3>
+<p>
+The <code>userlist</code> section is used to tie encryption keys to a ClearQuest login.  This is used for CQ/XML implementations that have interface clients on each user's machine of for implementations that pass the user login and password with its requests.
+</p>
+<p>
+To add a new login-based encryption key, insert a new line anywhere withing the <code>userlist</code> section.  <code>userlist</code> sub-elements use the following format/syntax:
+</p>
+<blockquote>
+  <code>
+    <b>&lt;</b> + <b>[login]</b> + <b>&gt;</b>
+    + <b>[encryption key]</b>
+    + <b>&lt;/</b> + <b>[login]</b> + <b>&gt;</b>
+  </code>
+</blockquote>
+<p>
+Like the <code>iplist</code> elements, the encryption key itself cannot have a greater-than symbol.  The same thing will happen - bad XML, parsing recursion, crash.
+</p>
+</body>
+</html>

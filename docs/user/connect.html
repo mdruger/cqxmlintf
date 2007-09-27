@@ -1,0 +1,88 @@
+<html>
+<head>
+<title>CQ/XML - Connecting to the CQ/XML Server</title>
+<link rel='stylesheet' type='text/css' href='cqxmldocs.css'/>
+</head>
+
+<body>
+<center>
+  <h1>ClearQuest/XML Interface User Guide</h1>
+</center>
+
+<h2>Connecting to the CQ/XML Server</h2>
+<p>
+The following code has been copied in part from the <a href='cqclient.pl.txt'
+class='inline'>sample CQ/XML Perl script</a> but is repeated here so that
+it can be viewed by itself.  If you are already versed in creating sockets
+in Perl, the connection details that you need to know are:
+<table>
+<tr><td class='data'>port:</td><td class='data'>5556</td></tr>
+<tr><td class='data'>protocol:</td><td class='data'>TCP</td></tr>
+<tr><td class='data'>practice server:</td><td class='data'>cqtestxml.site</td></tr>
+<tr><td class='data'>production server:</td><td class='data'>cqprodxml.site</td></tr>
+</table>
+</p>
+
+<h2>Code</h2>
+<pre>
+  #!/usr/bin/perl -w
+  $| = 1;                                         # don't buffer output
+  use FileHandle;                                 # autoflush as method
+  use Socket;                                     # socket io
+
+  ###########################################################################
+  #   NAME: SocketComm
+  #   DESC: creates the socket and sends the file through, listens for end tag
+  #   ARGS: open filehandle to data file
+  #   RTNS: socket err?, command output
+  ###########################################################################
+  sub SocketComm
+  {
+      my $xmlstr = join( '', @_ );                # read in str (or entire fh)
+      my $exit   = 0;                             # default exit val = okay
+      my @cmdout = ();                            # init command output
+      my $server = 'cqtestxml';            # cq server
+      my $eof    = '&lt;/ClearQuest&gt;';               # end of data tag
+      my $port   = 5556;                          # port address of server
+      my $proto  = getprotobyname( 'tcp' );       # get protocol num for tcp
+      my $iaddr  = inet_aton( $server );          # convert hostname to bin ip
+      my $paddr  = sockaddr_in( $port, $iaddr );  # resolve socket address
+
+                                                  # create socket
+      socket( SOCK, PF_INET, SOCK_STREAM, $proto ) or die( "socket: $!" );
+                                                  # connect to socket
+      connect( SOCK, $paddr ) or die( "$errhdr unable to connect to '$server'!\n" );
+      autoflush SOCK 1;                           # don't buffer to socket
+      print( SOCK "$xmlstr\n" );                  # send command through socket
+      shutdown( SOCK, 1 ) if ( $shutdown );       # we're done writing if enabled
+
+      while ( $_ = &lt;SOCK&gt; )                       # while data in socket
+      {
+          if ( $_ =~ /status='error'/o )          # error detected
+          {
+              $exit = 1;                          # set bad exit val
+          }
+          push( @cmdout, $_ );                    # save command output
+          last if ( $_ =~ /$eof/ );               # stop read if end of data
+      }
+      close( SOCK );                              # close the socket
+
+      return( $exit, @cmdout );                   # return status & output
+  }
+</pre>
+
+<h2>Up Next</h2>
+<p>
+The next chapter, <a href='rootelem.html'>ClearQuest Root Element</a>, will show how to format your XML to send requests to the CQ/XML server.
+</p>
+
+<!-- footer -->
+<table class='ftr'>
+<tr>
+  <td class='ftrl'>&nbsp;</td>
+  <td class='ftrc'><a href='index.html' class='ftr'><img src='arrow-u.gif'/> Table of Contents</a></td>
+  <td class='ftrr'><a href='rootelem.html' class='ftr'>ClearQuest Root Element <img src='arrow-r.gif'/></a></td>
+</tr>
+</table>
+</body>
+</html>

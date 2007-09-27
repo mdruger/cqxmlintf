@@ -1,0 +1,123 @@
+<html>
+<head>
+<title>CQ/XML - Query Elements</title>
+<link rel='stylesheet' type='text/css' href='cqxmldocs.css'/>
+</head>
+
+<body>
+<center>
+  <h1>ClearQuest/XML Interface User Guide</h1>
+</center>
+
+<h2>Query Elements</h2>
+<p>
+Query elements allow you to run ClearQuest queries from the CQ/XML
+Interface.  The query element has one required and one optional attribute.
+</p>
+<p>
+<center>
+  <table cellspacing='0' cellpadding='2' width='80%' border='1'>
+  <tr>
+    <th>Required&nbsp;Attribute</th>
+    <th>Description</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td>name</td>
+    <td>the <i>full</i> path and name of the query</td>
+    <td>
+      <li>any personal query belonging to the current user as specified by
+      the <a href='rootelem.html'>ClearQuest root element</a></li>
+      <li>any public query</li>
+    </td>
+  </tr>
+  <tr>
+    <th>Optional&nbsp;Attribute</th>
+    <th>Description</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td>wait</td>
+    <td>Should the action be performed now or queued up for later?</td>
+    <td>
+      <li>valid values: yes, no</li>
+      <li>if the attribute is omitted, '<span class='inline'>no</span>' is assumed, but will generate an error if no <i>value</i> is specified (ie: <span class='inline'>wait=""</span>)</li>
+    </td>
+  </tr>
+</table>
+</center>
+</p>
+
+<h2>Query Element Examples</h2>
+<p>
+<table cellspacing='0' cellpadding='2' border='0'>
+<tr>
+  <td class='data'>Run public query '<span class='inline'>My To Do
+  List</span>':</td>
+  <td class='data src'>
+    &lt;<span class="elem">query</span> <span
+    class="atrb">name</span>=<span class="atrbval">"Public Queries/My To Do
+    List"</span> <span class="atrb">wait</span>=<span
+    class="atrbval">"yes"</span>/&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'>Run personal query '<span class='inline'>MyDefects</span>':</td>
+  <td class='data src'>
+    &lt;<span class="elem">query</span> <span
+    class="atrb">name</span>=<span class="atrbval">"Personal
+    Queries/MyDefects"</span> <span class="atrb">wait</span>=<span
+    class="atrbval">"yes"</span>/&gt;
+  </td>
+</tr>
+</table>
+</p>
+
+<h2>Putting It Together</h2>
+<p>
+Using the information from the previous chapters, here's how you would perform some common tasks:
+</p>
+<p>
+Run public query '<span class='inline'>My To Do List</span>':
+<br>
+<span class='src'>
+  &nbsp;&nbsp;
+  &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;<span class="elem">query</span> <span
+    class="atrb">name</span>=<span class="atrbval">"Public Queries/My To Do
+    List"</span> <span class="atrb">wait</span>=<span
+    class="atrbval">"yes"</span>/&gt;
+  <br>&nbsp;&nbsp;
+  &lt;/<span class="elem">ClearQuest</span>&gt;
+</span>
+</p>
+
+<h2>Caveats</h2>
+<p>
+<ul>
+  <li>The '<span class='inline'>wait</span>' attribute is optional but defaults to '<span class='inline'>no</span>'.  (Which admittedly, is not very useful.)</li>
+  <li>When running a query, the query's full path and name must be specified (i.e. '<span class='inline'>Public Queries/Record Queries/All Divisions</span>').</li>
+  <li>Any record type may be queried.</li>
+  <li>Running reports is not supported.</li>
+</ul>
+</p>
+
+<h2>Up Next</h2>
+<p>
+The most valuable queries have prompts that allow you to input dynamic
+values.  The next chapter,
+<a href='prompt.html'>Prompt Elements</a>, will show how to input prompt
+values into queries via the CQ/XML Interface.
+</p>
+
+<!-- footer -->
+<table class='ftr'>
+<tr>
+  <td class='ftrl'><a href='sr.html' class='ftr'><img src='arrow-l.gif'/> Service_Request Elements</a></td>
+  <td class='ftrc'><a href='index.html' class='ftr'><img src='arrow-u.gif'/> Table of Contents</a></td>
+  <td class='ftrr'><a href='prompt.html' class='ftr'>Prompt Elements <img src='arrow-r.gif'/></a></td>
+</tr>
+</table>
+</body>
+</html>

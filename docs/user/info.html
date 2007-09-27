@@ -1,0 +1,192 @@
+<html>
+<head>
+<title>CQ/XML - Info Elements</title>
+<link rel='stylesheet' type='text/css' href='cqxmldocs.css'/>
+</head>
+
+<body>
+<center>
+  <h1>ClearQuest/XML Interface User Guide</h1>
+</center>
+
+<h2>Info Elements</h2>
+<p>
+Info elements allow you to add some interactivity and validation to your scripts.  With info elements you can list queries, verify the database or verify the login information.  Info elements have one required element and three optional elements.
+<center>
+  <table cellspacing='0' cellpadding='2' width='80%' border='1'>
+  <tr>
+    <th>Required&nbsp;Attribute</th>
+    <th>Description</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td>type</td>
+    <td>type of information desired</td>
+    <td>
+      <li>valid values are: 'Personal Queries', 'Public Queries', 'All Queries', 'dbtype' or 'login'</li>
+    </td>
+  </tr>
+  <tr>
+    <th>Optional&nbsp;Attribute</th>
+    <th>Description</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td>dynamic</td>
+    <td>Should the query types return dynamic queries?</td>
+    <td>
+      <li>valid values: all, yes, no</li>
+      <li>if no value is specified '<span class='inline'>all</span>' is assumed</li>
+      <li>this attribute is only valid when used with the query '<span class='inline'>type</span>'s</li>
+    </td>
+  </tr>
+  <tr>
+    <td>record</td>
+    <td>Only list queries against a specific type of record.</td>
+    <td>
+      <li>valid values: all <i>or any record type specified in the <a href='http://engrdocs.site/clearquest/datadictionary.html'>Data Dictionary</a></i></li>
+      <li>if no value is specified '<span class='inline'>all</span>' is assumed</li>
+      <li>this attribute is only valid when used with the query '<span class='inline'>type</span>'s</li>
+    </td>
+  </tr>
+  <tr>
+    <td>wait</td>
+    <td>Should the action be performed now or queued up for later?</td>
+    <td>
+      <li>valid values: yes, no</li>
+      <li>if no value is specified '<span class='inline'>no</span>' is assumed</li>
+    </td>
+  </tr>
+  </table>
+</center>
+<br>
+The follow table details the info element '<span class='inline'>type</span>'s.
+<center>
+  <table cellspacing='0' cellpadding='2' width='80%' border='1'>
+  <tr>
+    <th>Type</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>Personal&nbsp;Queries</td>
+    <td>Returns the full paths of all the personal queries belonging to the user logged-in via the <a href="rootelem.html">ClearQuest root element</a>.</td>
+  </tr>
+  <tr>
+    <td>Public Queries</td>
+    <td>Returns the full paths of all the public queries.</td>
+  </tr>
+  <tr>
+    <td>All Queries</td>
+    <td>Returns the full paths of all the personal and public queries accessible to the user logged-in via the <a href="rootelem.html">ClearQuest root element</a>.</td>
+  </tr>
+  <tr>
+    <td>dbtype</td>
+    <td>Returns the type of database the <a href="rootelem.html">ClearQuest root element</a> has logged-in to.  Valid values are: 'development', 'qa', 'test' and 'production'</td>
+  </tr>
+  <tr>
+    <td>login</td>
+    <td>Actions that don't modify records don't require the user specified in the <a href='rootelem.html'>ClearQuest root element</a> to login.  In those situations, the CQ/XML Interface skips the login process to improve performance.  This attribute type allows scripts to verify the login information is correct without modifying records.</td>
+  </tr>
+  </table>
+</center>
+</p>
+
+<h2>Info Element Examples</h2>
+<p>
+<table cellspacing='0' cellpadding='2' border='0'>
+<tr>
+  <td class='data'>Return all the user's <b>personal queries</b>:</td>
+  <td class='data src'>
+    &lt;<span class="elem">info</span> <span class="atrb">type</span>=<span class="atrbval">"Personal Queries"</span> <span class="atrb">wait</span>=<span class="atrbval">"yes"</span>/&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'>Return all the <b>public queries</b> without prompts:</td>
+  <td class='data src'>
+    &lt;<span class="elem">info</span> <span class="atrb">type</span>=<span class="atrbval">"Public Queries"</span> <span class='atrb'>dynamic</span>=<span class='atrbval'>"no"</span> <span class="atrb">wait</span>=<span class="atrbval">"yes"</span>/&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'>Return <b>all queries</b> accessible to the user:</td>
+  <td class='data src'>
+    &lt;<span class="elem">info</span> <span class="atrb">type</span>=<span class="atrbval">"All Queries"</span> <span class="atrb">wait</span>=<span class="atrbval">"yes"</span>/&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'>Return the <b>database type</b>:</td>
+  <td class='data src'>
+    &lt;<span class="elem">info</span> <span class="atrb">type</span>=<span class="atrbval">"dbtype"</span> <span class="atrb">wait</span>=<span class="atrbval">"yes"</span>/&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'>Validate the user's <b>login</b>:</td>
+  <td class='data src'>
+    &lt;<span class="elem">info</span> <span class="atrb">type</span>=<span class="atrbval">"login"</span> <span class="atrb">wait</span>=<span class="atrbval">"yes"</span>/&gt;
+  </td>
+</tr>
+</table>
+</p>
+
+<h2>Putting It Together</h2>
+<p>
+Using the information from the previous chapters, here's how you would perform some standard 'info' tasks:
+</p>
+<p>
+Return a list of all defect queries with prompts, accessible to the current user:
+<br>
+<span class='src'>
+  &nbsp;&nbsp;
+  &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;<span class="elem">info</span> <span class="atrb">type</span>=<span class="atrbval">'All Queries'</span> <span class='atrb'>dynamic</span>=<span class='atrbval'>'yes'</span> <span class='atrb'>record</span>=<span class='atrbval'>'defect'</span> <span class="atrb">wait</span>=<span class="atrbval">'yes'</span>/&gt;
+  <br>&nbsp;&nbsp;
+  &lt;/<span class="elem">ClearQuest</span>&gt;
+</span>
+</p>
+<p>
+Verify that the script is running against the correct database:
+<br>
+<span class='src'>
+  &nbsp;&nbsp;
+  &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;<span class="elem">info</span> <span class="atrb">type</span>=<span class="atrbval">'dbtype'</span> <span class="atrb">wait</span>=<span class="atrbval">'yes'</span>/&gt;
+  <br>&nbsp;&nbsp;
+  &lt;/<span class="elem">ClearQuest</span>&gt;
+</span>
+</p>
+<p>
+Validate the <a href="rootelem.html">ClearQuest root element</a>:
+<br>
+<span class='src'>
+  &nbsp;&nbsp;
+  &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;<span class="elem">info</span> <span class="atrb">type</span>=<span class="atrbval">'login'</span> <span class="atrb">wait</span>=<span class="atrbval">'yes'</span>/&gt;
+  <br>&nbsp;&nbsp;
+  &lt;/<span class="elem">ClearQuest</span>&gt;
+</span>
+</p>
+
+<h2>Caveats</h2>
+<p>
+<ul>
+  <li>Using the '<span class='inline'>dynamic</span>' or '<span class='inline'>record</span>' attributes with the '<span class='inline'>type</span>' attribute set to one of the '<span class='inline'>* Queries</span>' values, may degrade performance.</li>
+</ul>
+</p>
+
+<h2>Up Next</h2>
+<p>
+The next chapter, <a href='sql.html'>SQL Elements</a>, will explain how to run raw SQL against the ClearQuest database via the CQ/XML Interface.
+</p>
+
+<!-- footer -->
+<table class='ftr'>
+<tr>
+  <td class='ftrl'><a href='qfield.html' class='ftr'><img src='arrow-l.gif'/> Query Field Elements</a></td>
+  <td class='ftrc'><a href='index.html' class='ftr'><img src='arrow-u.gif'/> Table of Contents</a></td>
+  <td class='ftrr'><a href='sql.html' class='ftr'>SQL Elements <img src='arrow-r.gif'/></a></td>
+</tr>
+</table>
+</body>
+</html>
