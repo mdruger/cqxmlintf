@@ -1,0 +1,100 @@
+<html>
+<head>
+<title>Known Issues and Defects</title>
+<link rel='stylesheet' type='text/css' href='admin.css' />
+<link rel='shortcut icon' href='pics/bug.png' />
+</head>
+
+<body class='bugs'>
+<table class='hdr'>
+<tr>
+  <td><a href='admin.html'>&#171; CQ/XML Admin Docs</a></td>
+  <th>Known Issues and Defects</th>
+  <td align='right'><b>Updated:</b> <script>document.write( document.lastModified );</script></td>
+</tr>
+</table>
+
+<p class='intro'>
+This are the known issues or defects that we remember:
+</p>
+<h4>attributes vs. sub-elements</h4>
+<p>
+  The XML parser (<code>XML::Mini</code>) places the attributes and sub-elements at the same level.  Consider the following example:
+<table>
+<tr class='hdr'>
+  <th>CQ/XML Request in XML Format</th>
+  <th>Same CQ/XML Request After Parsing</th>
+</tr>
+<tr>
+  <td>
+<pre>
+&lt;ClearQuest login='cquser' password='pswd' db='ratlc' repo='repo'&gt;
+  &lt;defect id='ratlc00123000' action='view' wait='yes'&gt;
+    &lt;headline/&gt;
+  &lt;/defect&gt;
+&lt;/ClearQuest&gt;
+</pre>
+  </td>
+  <td class='brdrl'>
+<pre>
+'ClearQuest' =&gt;
+    {
+        'password' =&gt; 'pswd',
+        'db' =&gt; 'ratlc',
+        'repo' =&gt; 'repo',
+        'defect' =&gt; {
+                      'headline' =&gt; '',
+                      'wait' =&gt; 'yes',
+                      'action' =&gt; 'view',
+                      'id' =&gt; 'ratlc00123000'
+                    },
+        'login' =&gt; 'cquser'
+    }
+</pre>
+  </td>
+</tr>
+</table>
+Notice that the root element attributes (<code>login</code>, <code>password</code>, <code>db</code>, <code>repo</code>) are at the same level as the root element's sub-elements (<code>defect</code>).  Also notice that the <code>&lt;defect&gt;</code> attributes (<code>id</code>, <code>action</code>, <code>wait</code>) are at the same level as the <code>&lt;defect&gt;</code>'s sub-elements (<code>&lt;headline&gt;</code>).  There is really no way to tell what is an attribute and what is a sub-element.  We overcame this via two hacks.  First, almost all of our attributes have names that do not match sub-element names.  For example, in our schema we have no records named 'login' or 'password' and our defect records have no fields named 'action' or 'wait'.  You may be saying "but don't you have a field named 'id'?" or "what did you mean 'almost all of our attributes'?".  That's were the second hack comes in.  Since '<code>id</code>' is always required (<code>action</code> and <code>wait</code> are not) if we detect two of them in the parsed XML that means the user has requested the '<code>id</code>' field and we take the appropriate actions.
+</p>
+<h4>invalid XML in record permisions config file causes server to crash</h4>
+<p>
+  This is mentioned in more detail in the <a href='addenc.html'>Adding an Encryption Key</a> and <a href='addperm.html'>Adding a Permissions Entry</a> sections.
+</p>
+<h4>log may be written to wrong file</h4>
+<p>
+The CQ/XML Interface queue manager is responsible for cleaning up all of the temporary logs that the live server leaves lying around.  It reads in all the temporary logs, appends them together and writes them into the current public log.  The queue manager runs every 5 minutes so a live action that occurs between 11:55 and midnight will be recorded to the log for the following day.
+</p>
+<h4>no way to turn XML servers off</h4>
+<p>
+Currently if you want to patch the server there is no way to prevent users from logging-in.  We cross our fingers, kill the process and do our thing.  Of course once the process is dead users won't be able to connect.  The problem comes during that instant that we kill the process.  If a user is logged-in at that moment, we don't really know what happens to their work.  You can check if somebody is doing something big by looking for the <a href='logs.html'>in-process queue</a> files but that won't tell you if somebody connects between the time you check the logs and kill the process.
+</p>
+<h4>XML interface having problem when wait=no and update causes notification hook to run</h4>
+<p>This is a new one that we haven't started looking at yet.</p>
+<h4>want ability to create queries on the fly with the CQ/XML Interface</h4>
+<p>Sounds easy but <i>whoa</i> this is a lot of work.  We're just stalling for now.</p>
+<h4>running queries with column names with invalid XML characters breaks the logs</h4>
+<p>
+If a user has modified their ClearQuest query column headers so instead of returning 'Submit_Date' it returns 'Submit Date', the CQ/XML Interface will return the column name as the element name.  Problem is that spaces aren't allowed in XML element names.  Most of our users are parsing the returned XML on their own but everything that gets returned also get written to the <a href='logs.html'>public logs</a>.  So now the whole public log for the day is munged.
+</p>
+<h4>need simple way to parse XML logs</h4>
+<p>
+Our CQ/XML Interface is so heavily used that the daily public logs are huge.  Can you guess what happens when you try to load a multi-GB sized XML file in your web browser?  Well at first a lot of nothing.  If you're using Firefox it'll crash.  If you're using Internet Explorer your UI will crash.  The only solution we have now - copy a multi-GB file over the network and parse manually - isn't well liked either.
+</p>
+<h4>implement un/duplicate</h4>
+<p>
+Nobody has asked for this so no need to add more code and work.  Right?
+</p>
+<h4>process records (maybe fields) in order</h4>
+<p>
+When people start using the CQ/XML Interface everybody goes though a stage of panic where they realize that the records they sent aren't returned in the same order.  Let them vent and get it off their chests.  Soon enough they'll realize it doesn't really matter.  If you <i>need</i> to process some records in order, just generate multiple requests to the CQ/XML Interface.
+</p>
+<p>
+The same holds for fields except they can be a little more problematic.  The one recurring goof we've seen is when users try to '<code>replace</code>' the value of a ref-list and then try to '<code>add</code>' to the same field within one CQ/XML Interface request (even within one action).  Since the the order is not guaranteed it's possible that the second valued will be added and then the whole list will be replaced by the first value.
+</p>
+<h4>XML returned by the CQ/XML server may not be well-formed</h4>
+<p>
+This can occur under two conditions. First, if one of the fields returned by ClearQuest has XML reserved characters such as '&lt;' or '&amp;'. Second, if there is an error with the XML sent to the server, the server will return an error and indicate where in the XML it had a problem.
+</p>
+
+</body>
+</html>

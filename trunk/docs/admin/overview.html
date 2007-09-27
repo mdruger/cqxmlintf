@@ -1,0 +1,208 @@
+<html>
+<head>
+<title>Overview of the CQ/XML Interface</title>
+<link rel='stylesheet' type='text/css' href='admin.css' />
+<link rel='shortcut icon' href='pics/zoom.png' />
+</head>
+
+<body>
+<table class='hdr'>
+<tr>
+  <td><a href='admin.html'>&#171; CQ/XML Admin Docs</a></td>
+  <th>Overview of the CQ/XML Interface</th>
+  <td align='right'><b>Updated:</b> <script>document.write( document.lastModified );</script></td>
+</tr>
+</table>
+
+<p>
+This page will provide an overview of the basic flow if the CQ/XML Interface and comment on all of the files that make up the ClearQuest XML Interface.
+</p>
+
+<h3>CQ/XML Interface Flow</h3>
+This is the basic flow of the live server, <code>cqxi_live.pl</code>.
+<ol class='flow'>
+  <li>Establish a socket connection with a client. <tt>main()</tt></li>
+  <li>Create a new '<code>cqtan</code>' (<b>C</b>lear<b>Q</b>uest <b>t</b>rans<b>a</b>ction <b>n</b>umber). <tt>GenCqTan()</tt></li>
+  <li>Read the <a href='addperms.html'>modification permissions</a> file if it has changed. <tt>CqSvr::ReadIpModPerms()</tt></li>
+  <li>Read the <a href='addenc.html'>encryption keys</a> file if it has changed. <tt>CqSvr::ReadEncKeys()</tt></li>
+  <li>Read the system message file if it has changed. <tt>CqSvr::ReadSysMsg()</tt></li>
+  <li>Fork (if enabled). <tt>main()</tt></li>
+  <li>Read the contents of the socket. <tt>main()</tt></li>
+  <li>
+    Perform a preliminary check of the XML.
+    <tt>CqXml::PrelimXmlChk()</tt>
+    <ul>
+      <li>The XML parser may recursively loop if the incoming XML is not properly formed.  This check prevents bad XML from hitting the parser.</li>
+    </ul>
+  </li>
+  <li>
+    Save the incoming XML to a file.
+    <tt>WriteQueueFile()</tt>
+    <ul>
+      <li>This file is used by the queue manager to write the public logs and to process queued jobs.</li>
+    </ul>
+  </li>
+  <li>Send the XML to the XML parser, save to hash. <tt>XML::Mini::Document-&gt;toHash()</tt></li>
+  <li>Search for queued jobs in the XML-hash, set status to 'queued' in the return XML-hash. <tt>PrnQdStat()</tt></li>
+  <li>
+    Restructure the XML-hash so it's easier to work with.
+    <tt>CqXml::CqExecXml()</tt>
+    <ul>
+      <li>Separates the connection information from the ClearQuest data.</li>
+      <li>Since you can send one or multiple requests at the same time, by default the data structure differs based on the input.  This step makes the data structure uniform regardless of the input.</li>
+      <li>The XML parser doesn't differentiate between attributes and sub-elements very well.  This step fixes that as well.</li>
+    </ul>
+  </li>
+  <li>Perform the ClearQuest requests. <tt>CqXml::CqExecXml()</tt></li>
+  <ol>
+    <li>Login to ClearQuest. <tt>CQ::Login()</tt></li>
+    <li>Determine CQ/XML action and call appropriate method to perform the appropriate action. <tt>CqXml::CqExecXml()</tt></li>
+    <li>Evaluate return from each method and convert into XML. <tt>CqXml::CqExecXml()</tt></li>
+    <li>Logout of ClearQuest. <tt>CqXml::CqExecXml()</tt></li>
+  </ol>
+  <li>Print the return status to the client and temporary log. <tt>PrnRtnXml()</tt></li>
+  <li>Close the socket. <tt>main()</tt></li>
+  <li>Exit forked process (if applicable). <tt>main()</tt></li>
+</ol>
+
+<h3>CQ/XML Interface Files</h3>
+<p>
+The following table lists all of the files in CQ/XML Interface.  The files in the top directory are required for CQ/XML Interface.  Some of them may need some minor tweaking for your configuration.  <code>cqsvrvars.pm</code> will need some major work for your setup but it's designed to be easy to edit and maintain.  Don't sweat it.  The files in the <code>support</code> directory are not necessary but they will make your life easier.  Some live on the server and some are just run from within your source repository.  The bullets for these items will give you some information on how we use them.
+</p>
+<table class='files'>
+<tr>
+  <th class='code'>cqclient.pl</th>
+  <td>
+    a simple test client that can connect to a CQ/XML server and send an XML file and print the response
+    <li>only used in the source repository, does not need to be on the server</li>
+  </td>
+</tr>
+<tr>
+  <th>cqext.pm</th>
+  <td>ClearQuest functions, like Login(), Submit(), Query(), RawSql(), etc.</td>
+</tr>
+<tr>
+  <th>cqextvars.pm</th>
+  <td>hard-coded CQ variable mappings</td>
+</tr>
+<tr>
+  <th>cqflds.pm</th>
+  <td>make sure that fields are processed in dependancy order</td>
+</tr>
+<tr>
+  <th>cqsvrfuncs.pm</th>
+  <td>functions used by both the Live and Queued servers, like OpenLog(), ReadIpModPerms(), Decrypt(), etc.</td>
+</tr>
+<tr>
+  <th>cqsvrvars.pm</th>
+  <td><b>the main configuration file</b> - server and schema specific variables</td>
+</tr>
+<tr>
+  <th>cqsys.pm</th>
+  <td>
+    process and server-level checking
+    <li>see introduction paragraph in <a href='setup.html'>Setting Up a New CQ/XML Server</a> regarding the use of Windows and email</li>
+  </td>
+</tr>
+<tr>
+  <th>cqxi_live.pl</th>
+  <td>the live server (the guts of the whole thing)</td>
+</tr>
+<tr>
+  <th>cqxi_queued.pl</th>
+  <td>the queue manager</td>
+</tr>
+<tr>
+  <th>cqxml.pm</th>
+  <td>XML parsing and restructuring</td>
+</tr>
+<tr>
+  <th>support/clnTmp2PubLogs.pl</th>
+  <td>
+    forces a clean up of temporary logs that weren't written to the public logs
+    <li>on a CQ/XML server this sits at the same level as the server code itself</li>
+  </td>
+</tr>
+<tr>
+  <th>support/cp2svr.sh</th>
+  <td>
+    copies the server code to a new machine
+    <li>only used in the source repository, does not need to be on the server</li>
+    <li>only works on UNIX/Linux or on Windows with MKS Toolkit</li>
+  </td>
+</tr>
+<tr>
+  <th>support/cprls2svr.pl</th>
+  <td>
+    pulls new server code and populates into server
+    <li>on a CQ/XML server this sits at the same level as the server code itself</li>
+  </td>
+</tr>
+<tr>
+  <th>support/cpsysmsg.pl</th>
+  <td>
+    copies a system message to prepend to return XML
+    <li>on a CQ/XML server this sits at the same level as the server code itself</li>
+    <li>our users just filtered this out so we don't use it anymore</li>
+  </td>
+</tr>
+<tr>
+  <th>support/cqtan_date.pl</th>
+  <td>
+    returns the current date in CQ/XML <code>cqtan</code> format (yyddd)
+    <li>only used in the source repository, does not need to be on the server</li>
+  </td>
+</tr>
+<tr>
+  <th>support/cqxi_chklive.pl</th>
+  <td>
+    checks if the live server (<code>cqxi_live.pl</code>) is running and restarts it if necessary
+    <li>on a CQ/XML server this sits at the same level as the server code itself</li>
+  </td>
+</tr>
+<tr>
+  <th>support/crontab.txt</th>
+  <td>our crontab setup</td>
+</tr>
+<tr>
+  <th>support/encstr.pl</th>
+  <td>
+    uses the Crypt::RC4 package to encrypt strings given a key
+    <li>only used in the source repository, does not need to be on the server</li>
+  </td>
+</tr>
+<tr>
+  <th>support/killsvr.sh</th>
+  <td>
+    on Windows, <code>^C</code> will kill the Rational '<code>cqwrapper</code>' but orphan the child Perl process, this kill them both
+    <li>requires MKS Toolkit</li>
+  </td>
+</tr>
+<tr>
+  <th>support/missingCqTans.pl</th>
+  <td>finds missing <code>cqtan</code> numbers</td>
+</tr>
+<tr>
+  <th>support/secCXinst.sh</th>
+  <td>
+    secures the CQ/XML install by changing the permissions and owner:group
+    <li>works on UNIX/Linux only</li>
+  </td>
+</tr>
+<tr>
+  <th>support/xmlstats.pl</th>
+  <td>
+    used to generate the monthly statistics report
+    <li>only used in the source repository, does not need to be on the server</li>
+  </td>
+</tr>
+<tr>
+  <th>support/xmlstats.pm</th>
+  <td>
+    hard-coded mappings for <code>xmlstats.pl</code>
+    <li>only used in the source repository, does not need to be on the server</li>
+</tr>
+</table>
+
+</body>
+</html>

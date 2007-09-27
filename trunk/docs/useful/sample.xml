@@ -1,0 +1,131 @@
+<?xml version='1.0'?>
+<!-- login parameters... cq login, cq password, cq goo and the database
+     If you don't want to send your password as cleartext, the XML
+     interface supports RC4 encryption.  IPs and encryption keys
+     need to be synchronized before encrypted passwords can be used.
+-->
+<ClearQuest login='cq_user' password='cqpswd' repo='repo' db='dev'>
+
+    <!-- view a defect's headline -->
+    <defect id='dev00000048' action='view' wait='yes'>
+        <headline/>
+    </defect>
+
+    <!-- If you don't specify fields, you get *ALL* of them. -->
+    <defect id='dev00000048' action='view' wait='yes'/>
+
+    <!-- If the 'wait' attribute is set to "no", the XML interace will
+         return immediately and the results will be accessible in the
+         queue log.
+    -->
+    <defect id='dev00000048' action='view' wait='no'>
+        <headline/>
+    </defect>
+
+    <!-- The 'wait' attribute is optional but will default to 'no'
+         or queued.
+    -->
+    <defect id='dev00000048' action='view'>
+        <headline/>
+    </defect>
+
+    <!-- The 'action' attribute is optional too and defaults to 'view'. -->
+    <defect id='dev00000048'>
+        <headline/>
+    </defect>
+
+    <!-- You can submit a defect.  Fill in the required fields
+         and notice that the unique key (id) is ALWAYS required.
+    -->
+    <defect id='0' action='submit' wait='yes'>
+        <component>Component A1</component>
+        <description>sample submit</description>
+        <headline>sample submit</headline>
+        <product>Product A</product>
+        <version_reported>v1</version_reported>
+        <severity>3-Average</severity>
+    </defect>
+
+    <!-- a state transition -->
+    <defect id='dev00000048' action='assign' wait='no'>
+        <owner>cq_user</owner>
+    </defect>
+
+    <!-- You can modify a defect without a state transition. -->
+    <defect id='dev00000048' action='modify' wait='yes'>
+        <headline>new headline</headline>
+    </defect>
+
+    <!-- The fields have a 'behavior' attribute.  Valid values are:
+         "replace", "add" and "remove".  The default behavior is "replace".
+    -->
+    <defect id='dev00000048' action='modify' wait='yes'>
+        <headline behavior='replace'>new headline</headline>
+    </defect>
+
+    <!-- This example is "add"ing values to a list.
+         (Separate the multi-part key values with a space.)
+    -->
+    <defect id='dev00000048' action='modify' wait='yes'>
+        <platform behavior='add'>Windows 2000 x86</platform>
+    </defect>
+
+    <!-- "remove"ing values from a list... -->
+    <defect id='dev00000048' action='modify' wait='yes'>
+        <platform behavior='remove'>Windows 2000 x86</platform>
+    </defect>
+
+    <!-- If you "replace" a list, all previous values are
+         removed and the new value is added.
+    -->
+    <defect id='dev00000048' action='modify' wait='yes'>
+        <platform behavior='replace'>Linux Red Hat Ent 3 x86</platform>
+    </defect>
+
+    <!-- Note that the order is not preserved!
+         This MAY do the "add" and then the "replace".
+    -->
+    <defect id='dev00000048' action='modify' wait='yes'>
+        <platform behavior='replace'>Linux Red Hat Ent 3 x86</platform>
+        <platform behavior='add'>Linux SuSE SLES 8 x86</platform>
+    </defect>
+
+    <!-- You can also "add" to an integer field or a multi-
+         line string (fields that support >254 characters).
+    -->
+    <defect id='dev00000048' action='modify' wait='yes'>
+        <description behavior='add'>add 2 days to est. time please</description>
+        <time_estimate behavior='add'>2</time_estimate>
+    </defect>
+
+    <!-- You can even run queries! -->
+    <query name='Public Queries/My To Do List' wait='yes'/>
+
+    <!-- Prompted queries are tricky.  Use 'prompt#' as the element names,
+         where each number is equivalent to the order the query prompts on
+         the web.  In the following example, the 'user' field is the first
+         field prompted on the web, followed by the 'State' field.
+    -->
+    <query name='Personal Queries/DEIwPrompts' wait='yes'>
+        <prompt1>cq_user</prompt1>
+        <prompt2>Closed</prompt2>
+    </query>
+
+    <!-- You can override the operator too, just use the operator
+         text found on the web page.  If you do not specify an
+         operator, the interface assumes 'Equals'.
+    -->
+    <query name='Personal Queries/DEIwPrompts' wait='yes'>
+        <prompt1>cq_user</prompt1>
+        <prompt2 operator='Does Not Equal'>Closed</prompt2>
+    </query>
+
+    <!-- You can specify multiple values for one field but the
+         operators must match.
+    -->
+    <query name='Personal Queries/DEIwPrompts' wait='yes'>
+        <prompt1>cq_user</prompt1>
+        <prompt2 operator='Does Not Equal'>Closed</prompt2>
+        <prompt2 operator='Does Not Equal'>Postponed</prompt2>
+    </query>
+</ClearQuest>

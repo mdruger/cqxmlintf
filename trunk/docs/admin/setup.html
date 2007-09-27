@@ -1,0 +1,84 @@
+<html>
+<head>
+<title>Setting Up a New CQ/XML Server</title>
+<link rel='stylesheet' type='text/css' href='admin.css' />
+<link rel='shortcut icon' href='pics/server.png' />
+<base target='_cqxmlinst' />
+</head>
+
+<body>
+<table class='hdr'>
+<tr>
+  <td><a href='admin.html'>&#171; CQ/XML Admin Docs</a></td>
+  <th>Setting Up a New CQ/XML Server</th>
+  <td align='right'><b>Updated:</b> <script>document.write( document.lastModified );</script></td>
+</tr>
+</table>
+
+<p>
+We originally wanted to release the CQ/XML Interface on Windows but we ran into two problems.  First, <code>cqperl</code> on Windows does not support true forking.  This is a <a href='http://aspn.activestate.com/ASPN/docs/ActivePerl/5.8/RELEASE.html#windows'>known problem with the underlying ActiveState Perl</a> so we don't expect a fix anytime soon.  You can run without forking enabled and this is exactly why forking must be explicitly set on the command line (via '<code>-f</code>').  Secondly, when we ran the CQ/XML Interface on Windows it seemed to stay up for about a day or two and then disappear.  If we ran the same code on Linux it stayed up forever.  We're not sure why but we didn't really spend much time looking at it either.  It couldn't have been the CQ/XML Interface code because it's perfect.  Having said that, we do all of our development and unit testing on Windows so we know it runs on Windows just fine.  The exception is <code>cqsys.pm</code>'s <code>PrnBinMailMsg()</code> which is hard-coded to use <code>/bin/mail</code>.
+</p>
+<p>
+Speaking of mail, <code>cpsysmsg.pl</code> is used to copy a message that is then prepended as a comment to the return output from the CQ/XML Interface.  Just to keep things confusing, this ran on Windows as a Scheduled Task.  We found that our users just filtered the comments out before even parsing them so we dropped the use of this.  The only reason I mention it here is that it uses some Windows mail junk so you might want to get the appropriate packages for it.  We got our distribution from <a href='http://www.tneoh.zoneit.com/perl/SendMail/'>here</a> which really doesn't look right but that's what the source says.  You might try browsing <a href='http://www.cpan.org'>CPAN.org</a> or just cheat and run from Linux and hardcode <code>/bin/mail</code>.  ;-)
+</p>
+<p>
+Now what you've been waiting for... how to setup a new CQ/XML server.
+</p>
+
+<ol>
+  <li><code>site_prep</code> and install ClearQuest on the server.</li>
+  <ul>
+    <li>It is not necessary to install the web server components.</li>
+    <li>On Linux/UNIX choose the standard ClearQuest install, not the ClearQuest server install.</li>
+  </ul>
+  <li>Setup the necessary repository connections.</li>
+  <ul>
+    <li>On Windows use the CQ Maintenance Tool.</li>
+    <li>On Linux/UNIX use the ClearQuest Eclipse client.</li>
+  </ul>
+  <li>Create a directory in a location that's accessible by the new XML server and ClearCase.</li>
+  <ul>
+    <li>This directory will be used to copy files from ClearCase to the CQ/XML server.</li>
+    <li class='warn'>Henceforth, this directory will be referred to as '<code>[srcdir]</code>'.</li>
+  </ul>
+  <li>If you plan to use directory locations other than the default, edit the source file <code>cqsvrvars.pm</code>.</li>
+  <li>From the ClearCase VOB, run <code>support/cp2svr.sh -d [srcdir]</code> to copy the source and create the proper directory structure in <code>[srcdir]</code>.</li>
+  <li>Login to the server with root privileges.</li>
+  <li>Create the appropriate directories for the CQ/XML Interface.</li>
+  <ul>
+    <li>The current installations of the CQ/XML Interface use the following directories:</li>
+    <ul>
+      <li><code>/opt/rational</code> <span class='note'>- the ClearQuest install</span></li>
+      <li><code>/opt/cqxmlintf</code> <span class='note warn'>- this directory will be referred to as '<code>[instdir]</code>'</span></li>
+      <li><code>/opt/cqxmlintf/svrout/archive</code> <span class='note'>- tmp logs and log archive</span></li>
+      <li><code>/opt/cqxmllogs</code> <span class='note'>- always a link to some place with a lot of disk</span></li>
+    </ul>
+  </ul>
+  <li>Copy the contents of the <code>[srcdir]</code> to <code>[instdir]</code>.</li>
+  <ul>
+    <li>
+      I usually use tar to preserve the directory tree and file permissions.
+      <br>
+      <span class='note'>Example:</span> <code>(cd [srcdir] &gt;/dev/null; tar -cf - *) | (cd [instdir] &gt;/dev/null; tar -xf -)</code>
+    </li>
+  </ul>
+  <li>Download and copy the required Perl packages to <code>[instdir]</code></li>
+  <ul>
+    <li><a href='http://search.cpan.org/dist/Crypt-RC4/RC4.pm'>Crypt::RC4</a> provides RC4 encryption</li>
+    <li><a href='http://minixml.psychogenic.com'>XML::Mini</a> provides XML parsing</li>
+    <ul>
+      <li class='warn'>we modified <code>XML/Mini.pm</code> <code>Error()</code> so instead of performing an '<code>exit(254)</code>' which can't be captured by <code>eval()</code>, it performs a '<code>die(@_)</code>'.
+    </ul>
+  </ul>
+  <li>As <code>root</code>, from a directory outside of <code>[instdir]</code>, run the command <code>[instdir]/secCXinst.sh</code> to fix the installation permissions and owners.</li>
+  <ul>
+    <li>On the development machines we usually change the permissions of <code>[instdir]</code> to <code>750</code> (aka <code>rwxr-x---</code> or user-read/write/execute, group-read/execute).</li>
+  </ul>
+  <li>As <code>cqxmlusr</code>, edit the cron schedule on the server.</li>
+  <ul>
+    <li>Copy the contents of <code>[instdir]/crontab.txt</code> into crontab.</li>
+  </ul>
+</ol>
+
+</body>
+</html>

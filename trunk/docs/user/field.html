@@ -1,0 +1,225 @@
+<html>
+<head>
+<title>CQ/XML - Field Elements</title>
+<link rel='stylesheet' type='text/css' href='cqxmldocs.css'/>
+</head>
+
+<body>
+<center>
+  <h1>ClearQuest/XML Interface User Guide</h1>
+</center>
+
+<h2>Field Elements</h2>
+<p>
+Field elements allow you to view or update individual fields on a defect
+record.  Unlike the <a href='rootelem.html'>ClearQuest root</a> and
+<a href='defect.html'>defect</a> elements, field elements do not have
+standard names.  Instead their names reflect each field's database column
+name.  For example, the field element for the
+'<span class='inline'>Headline</span>' field is:
+&lt;<span class="elem">headline</span>/&gt; while the field element for the
+'<span class='inline'>Version</span>' field is:
+&lt;<span class="elem">version_reported</span>/&gt;.
+A complete list of fields and their corresponding database column names is
+available via the <a
+href='http://engrdocs.site/clearquest/datadictionary.html'>ClearQuest
+Data Dictionary</a>.  Alternatively, within ClearQuest click on the field
+label and the database column will be displayed as <span class='inline'>DB
+Field Name</span>.
+</p>
+<p>
+Field elements have one optional attribute.
+<center>
+  <table cellspacing='0' cellpadding='2' width='80%' border='1'>
+  <tr>
+    <th>Optional&nbsp;Attribute</th>
+    <th>Description</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td>behavior</td>
+    <td>how the field should be modified</td>
+    <td>
+      <li>valid values: replace, add, remove</li>
+      <li>if the attribute is omitted, '<span class='inline'>replace</span>' is assumed, but will generate an error if no <i>value</i> is specified (ie: <span class='inline'>behavior=""</span>)</li>
+    </td>
+  </tr>
+</table>
+</center>
+</p>
+
+<h2>Field Element Examples</h2>
+<p>
+<table cellspacing='0' cellpadding='2' border='0'>
+<tr>
+  <td class='data'>Perform no action on a field ('<b><span class='inline'>view</span></b>'):</td>
+  <td class='data src'>
+    &lt;<span class="elem">headline</span>/&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'><b>Replace</b> a field value:</td>
+  <td class='data src'>
+    &lt;<span class="elem">headline</span>&gt;new value&lt;/<span class="elem">headline</span>&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'>Same as previous example:</td>
+  <td class='data src'>
+    &lt;<span class="elem">headline</span> <span class="atrb">behavior</span>=<span class="atrbval">'replace'</span>&gt;new value&lt;/<span class="elem">headline</span>&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'><b>Add</b> to a string:</td>
+  <td class='data src'>
+    &lt;<span class="elem">description</span> <span class="atrb">behavior</span>=<span class="atrbval">'add'</span>&gt;added string&lt;/<span class="elem">description</span>&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'>Add to a list:</td>
+  <td class='data src'>
+    &lt;<span class="elem">platform</span> <span class="atrb">behavior</span>=<span class="atrbval">'add'</span>&gt;Linux Red Hat Ent 3 x86&lt;/<span class="elem">platform</span>&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'>Add to an integer:</td>
+  <td class='data src'>
+    &lt;<span class="elem">time_estimate</span> <span class="atrb">behavior</span>=<span class="atrbval">'add'</span>&gt;2&lt;/<span class="elem">time_estimate</span>&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'><b>Remove</b> from a list:</td>
+  <td class='data src'>
+    &lt;<span class="elem">platform</span> <span class="atrb">behavior</span>=<span class="atrbval">'remove'</span>&gt;Windows 2000 x86&lt;/<span class="elem">platform</span>&gt;
+  </td>
+</tr>
+</table>
+</p>
+
+<h2>Putting It Together</h2>
+<p>
+Using the information from the previous chapters, here's how you would perform some common tasks:
+</p>
+<p>
+View a defect's owner and state:
+<br>
+<span class='src'>
+  &nbsp;&nbsp;
+  &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span> <span class="atrb">email-fail</span>=<span class="atrbval">'cq_user@mentor.com'</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;<span class="elem">defect</span> <span class="atrb">id</span>=<span class="atrbval">'pract00301000'</span> <span class="atrb">action</span>=<span class="atrbval">'view'</span> <span class="atrb">wait</span>=<span class="atrbval">'no'</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">owner</span>/&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">state</span>/&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;/<span class="elem">defect</span>&gt;
+  <br>&nbsp;&nbsp;
+  &lt;/<span class="elem">ClearQuest</span>&gt;
+</span>
+</p>
+<p>
+Submit a defect (notice that '<span class='inline'>id</span>' is still required):
+<br>
+<span class='src'>
+  &nbsp;&nbsp;
+  &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span> <span class="atrb">email-fail</span>=<span class="atrbval">'cq_user@mentor.com'</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;<span class="elem">defect</span> <span class="atrb">id</span>=<span class="atrbval">'0'</span> <span class="atrb">action</span>=<span class="atrbval">'submit'</span> <span class="atrb">wait</span>=<span class="atrbval">'no'</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">product</span>&gt;Sample Product&lt;/<span class="elem">product</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">component</span>&gt;Sample Component&lt;/<span class="elem">component</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">description</span>&gt;sample defect - this is the description&lt;/<span class="elem">description</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">headline</span>&gt;sample defect - headline&lt;/<span class="elem">headline</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <span class='cmnt'>&lt;-- see Caveats section for 'version_reported' vs. 'version_reported_list' --&gt;</span>
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">version_reported_list</span>&gt;v1.0&lt;/<span class="elem">version_reported_list</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">severity</span>&gt;4-Minor&lt;/<span class="elem">severity</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;/<span class="elem">defect</span>&gt;
+  <br>&nbsp;&nbsp;
+  &lt;/<span class="elem">ClearQuest</span>&gt;
+</span>
+</p>
+<p>
+Resolve a defect, filling in the
+<a href='http://engrdocs.site/clearquest/statemodel.html'>required fields</a> plus '<span class='inline'>planned_release</span>':
+<br>
+<span class='src'>
+  &nbsp;&nbsp;
+  &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span> <span class="atrb">email-fail</span>=<span class="atrbval">'cq_user@mentor.com'</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;<span class="elem">defect</span> <span class="atrb">id</span>=<span class="atrbval">'pract00301000'</span> <span class="atrb">action</span>=<span class="atrbval">'resolve'</span> <span class="atrb">wait</span>=<span class="atrbval">'no'</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">version_fixed</span>&gt;v1.1&lt;/<span class="elem">version_fixed</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">resolution</span>&gt;Fixed&lt;/<span class="elem">resolution</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">note_resolution</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      I changed some code and it fixed the problem!
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      Code has been merged to mainline.
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;/<span class="elem">note_resolution</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <span class="cmnt">&lt;!-- release value is release name + division: "rls_name div" --&gt;</span>
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">planned_release</span> <span class="atrb">behavior</span>=<span class="atrbval">'add'</span>&gt;Release A1 Div1&lt;/<span class="elem">planned_release</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;/<span class="elem">defect</span>&gt;
+  <br>&nbsp;&nbsp;
+  &lt;/<span class="elem">ClearQuest</span>&gt;
+</span>
+</p>
+
+<h2>Caveats</h2>
+<p>
+<ul>
+  <li>The '<span class='inline'>replace</span>' behavior (the default behavior for all fields) will replace an entire list or multi-line field.</li>
+  <li>It is possible to only add one standard note per action via the CQ/XML Interface.</li>
+  <li>Recall that the schema auto-selects a reported version during the '<span class='inline'>Submit</span>' action.  To override this behavior, use the '<span class='inline'>version_reported_list</span>' field to specify a version or explicitly empty '<span class='inline'>version_reported_list<span>'.
+    <table>
+    <tr><td class='data'><b>Example #1:</b></td>
+      <td class='data src'>
+        &lt;<span class="elem">version_reported_list</span>&gt;v1.0&lt;/<span class="elem">version_reported_list</span>&gt;
+      </td>
+    </tr>
+    <tr><td class='data'><b>Example #2:</b></th>
+      <td class='data src'>
+      &lt;<span class="elem">version_reported</span>&gt;v1.0&lt;/<span class="elem">version_reported</span>&gt;
+      <br>
+      &lt;<span class="elem">version_reported_list</span> /&gt;
+      </td>
+    </tr></table>
+  </li>
+</ul>
+</p>
+
+<h2>Up Next</h2>
+<p>
+Now you can view a defect.  What if you want to view a note?  The next chapter,
+<a href='note.html'>Note Elements</a>, will show how to view note records.
+</p>
+
+<h2>Resources</h2>
+<ul>
+  <li><a href='http://engrdocs.site/clearquest/datadictionary.html'>ClearQuest Data Dictionary</a></li>
+  <li><a href='http://engrdocs.site/clearquest/statemodel.html'>ClearQuest State Model</a></li>
+</ul>
+
+<!-- footer -->
+<table class='ftr'>
+<tr>
+  <td class='ftrl'><a href='defect.html' class='ftr'><img src='arrow-l.gif'/> Defect Elements</a></td>
+  <td class='ftrc'><a href='index.html' class='ftr'><img src='arrow-u.gif'/> Table of Contents</a></td>
+  <td class='ftrr'><a href='note.html' class='ftr'>Note Elements <img src='arrow-r.gif'/></a></td>
+</tr>
+</table>
+</body>
+</html>

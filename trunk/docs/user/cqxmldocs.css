@@ -1,0 +1,38 @@
+/* standard tags */
+a           { color: #009; }
+a:hover     { color: #c00; text-decoration: none; }
+body        { padding-bottom: 20; }
+h2          { background-color: #eef; margin: 40 0 -15 0; }
+h3          { border-bottom: 0.01em solid #99c; margin-bottom: -10; }
+img         { border: 0; }
+pre         { margin: 0px; }
+th          { background-color: #eef; }
+
+/* named tags */
+a.toc       { color: #009; }
+a.ftr       { font-weight: bold; text-decoration: none; }
+div.fc      { background-color: #eef; border-top: 0.01em solid #99c; float: center; text-align: center; }
+div.fr      { border: 0.01em solid #99c; float: right; margin-left: 5px; padding-left: 1px; }
+table.ftr   { background-color: #eef; border-top: 0.01em solid #99c; bottom: 0; margin: 0 0 0 -10; padding: -10 0 0 0; position: fixed; width: 100%; }
+table.ftr:hover
+            { background-color: #eee; }
+td.brdr     { border-bottom: 1px solid #dde; }
+td.ftrc     { text-align: center; width: 33%; }
+td.ftrl     { text-align: left; width: 34%; }
+td.ftrr     { text-align: right; width: 33%; }
+td.data     { padding: 0 0 0 10; vertical-align: top; }
+td.mid      { background-color: #eef; border-top: 0.01em solid #99c; text-align: center; width: 100%; }
+
+/* generic styles */
+.atrb       { color: black; font-weight: bold; }
+.atrbval    { color: blue; }
+.cmnt       { color: green; }
+.copy       { background-color: #eef; font-size: 8pt; font-weight: normal; text-align: center; width: 100%; }
+.copyhdr    { border-top: 0.01em solid #99c; font-size: 10pt; font-weight: bold; margin-top: 40px; }
+.elem       { color: purple; font-weight: bold; }
+.hilite     { background-color: #ffc; }
+.inline     { color: #009; }
+.src        { font-family: monospace; font-size: 13; }
+.std        { font-size: 14; }
+.toc        { font-size: 20; }
+.warn       { background-color: #fdd; color: red; }

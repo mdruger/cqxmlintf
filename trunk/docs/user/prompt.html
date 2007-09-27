@@ -1,0 +1,210 @@
+<html>
+<head>
+<title>CQ/XML - Prompt Elements</title>
+<link rel='stylesheet' type='text/css' href='cqxmldocs.css'/>
+</head>
+
+<body>
+<center>
+  <h1>ClearQuest/XML Interface User Guide</h1>
+</center>
+
+<h2>Prompt Elements</h2>
+<p>
+<div class='fr'>
+  <img src='prompt01.jpg'/>
+  <div class='fc'>
+    <caption>Image 1</caption>
+  </div>
+</div>
+Prompt elements allow you to specify values for prompted fields in ClearQuest
+queries.  Since queries can use the same field multiple times, prompt elements
+do not use the name of fields such as the <a href='field.html'>field elements</a>.  Rather the prompt elements use the text '<span class='inline'>prompt</span>'
+followed by a number that identifies the prompt as displayed by the ClearQuest web client.
+<br>
+For example, the query in <i>Image 1</i> has two prompts
+'<span class='inline'>owner</span>' and '<span class='inline'>submitter</span>'.
+When creating your XML to run this query, refer to
+'<span class='inline'>owner</span>' as '<span class='inline'>prompt1</span>' and
+'<span class='inline'>submitter</span>' as '<span class='inline'>prompt2</span>'.  You can specify more than one value for a prompt by listing the prompt multiple times.  Doing so, will cause ClearQuest to match defects that have any of the values specified.  (In SQL terms, this would be an '<span class='inline'>IN</span>' or an '<span class='inline'>OR</span>'.)
+</p>
+<p>
+Prompt elements have one optional attribute.
+<center>
+  <table cellspacing='0' cellpadding='2' width='80%' border='1'>
+  <tr>
+    <th>Optional&nbsp;Attribute</th>
+    <th>Description</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td>operator</td>
+    <td>the SQL operator that should be used against the prompted values</td>
+    <td>
+      <li>valid values are anything specified in the web interface</li>
+      <li>the default operator is dependent on the field type (see the web)</li>
+    </td>
+  </tr>
+</table>
+</center>
+</p>
+
+<h2>Prompt Element Examples</h2>
+<p>
+<table cellspacing='0' cellpadding='2' border='0'>
+<tr>
+  <td class='data'>Specify value for <b>first</b> (or only) prompt:</td>
+  <td class='data src'>
+    &lt;<span class="elem">prompt1</span>&gt;cq_user&lt;/<span class="elem">prompt1</span>&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'>Specify value for <b>second</b> prompt:</td>
+  <td class='data src'>
+    &lt;<span class="elem">prompt2</span>&gt;cq_user&lt;/<span class="elem">prompt2</span>&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'><b>Override</b> operator:</td>
+  <td class='data src'>
+    &lt;<span class="elem">prompt1</span> <span class="atrb">operator</span>=<span class="atrbval">'Does Not Equal'</span>&gt;cq_user&lt;/<span class="elem">prompt1</span>&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data' style='vertical-align: top;'>Specify <b>multiple</b> values:</td>
+  <td class='data src'>
+    &lt;<span class="elem">prompt1</span>&gt;cq_user&lt;/<span class="elem">prompt1</span>&gt;
+    <br>
+    &lt;<span class="elem">prompt1</span>&gt;cq_lead&lt;/<span class="elem">prompt1</span>&gt;
+  </td>
+</tr>
+</table>
+</p>
+
+<h2>Putting It Together</h2>
+<p>
+Using the information from the previous chapters, here's how you would perform some advanced query tasks:
+</p>
+<p>
+Run public query '<span class='inline'>Prompt Old Defect #</span>':
+<br>
+<span class='src'>
+  &nbsp;&nbsp;
+  &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;<span class="elem">query</span> <span class="atrb">name</span>=<span class="atrbval">'Public Queries/Prompt Old Defect #'</span> <span class="atrb">wait</span>=<span class="atrbval">'yes'</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt1</span>&gt;SC330767&lt;/<span class="elem">prompt1</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;/<span class="elem">query</span>&gt;
+  <br>&nbsp;&nbsp;
+  &lt;/<span class="elem">ClearQuest</span>&gt;
+</span>
+</p>
+<p>
+Run public query '<span class='inline'>Prompt Old Defect #</span>' against <i>multiple</i> defects:
+<br>
+<span class='src'>
+  &nbsp;&nbsp;
+  &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;<span class="elem">query</span> <span class="atrb">name</span>=<span class="atrbval">'Public Queries/Prompt Old Defect #'</span> <span class="atrb">wait</span>=<span class="atrbval">'yes'</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt1</span>&gt;SC330767&lt;/<span class="elem">prompt1</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt1</span>&gt;SC341772&lt;/<span class="elem">prompt1</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;/<span class="elem">query</span>&gt;
+  <br>&nbsp;&nbsp;
+  &lt;/<span class="elem">ClearQuest</span>&gt;
+</span>
+</p>
+<p>
+Run public query '<span class='inline'>All Defects</span>':
+<br>
+<span class='src'>
+  &nbsp;&nbsp;
+  &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;<span class="elem">query</span> <span class="atrb">name</span>=<span class="atrbval">'Public Queries/All Defects'</span> <span class="atrb">wait</span>=<span class="atrbval">'yes'</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt1</span>&gt;Defect&lt;/<span class="elem">prompt1</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt2</span>&gt;IT&lt;/<span class="elem">prompt2</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt3</span>&gt;ClearQuest&lt;/<span class="elem">prompt3</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt4</span>&gt;XML IF&lt;/<span class="elem">prompt4</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt5</span>&gt;Assigned&lt;/<span class="elem">prompt5</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt6</span>&gt;1-Resolve Immediately&lt;/<span class="elem">prompt6</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt7</span>&gt;1-Critical&lt;/<span class="elem">prompt7</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt8</span>&gt;cq_user&lt;/<span class="elem">prompt8</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt9</span>&gt;cq_user&lt;/<span class="elem">prompt9</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;/<span class="elem">query</span>&gt;
+  <br>&nbsp;&nbsp;
+  &lt;/<span class="elem">ClearQuest</span>&gt;
+</span>
+</p>
+<p>
+Run public query '<span class='inline'>All Defects</span>', ignoring some prompts, overriding operators and specifying multiple values for some prompts:
+<br>
+<span class='src'>
+  &nbsp;&nbsp;
+  &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;<span class="elem">query</span> <span class="atrb">name</span>=<span class="atrbval">'Public Queries/All Defects'</span> <span class="atrb">wait</span>=<span class="atrbval">'yes'</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt1</span>&gt;Defect&lt;/<span class="elem">prompt1</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt4</span>&gt;XML IF&lt;/<span class="elem">prompt4</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt5</span> <span class="atrb">operator</span>=<span class="atrbval">'Does Not Equal'</span>&gt;Closed&lt;/<span class="elem">prompt5</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt6</span>&gt;1-Resolve Immediately&lt;/<span class="elem">prompt6</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt6</span>&gt;2-Give High Attention&lt;/<span class="elem">prompt6</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;/<span class="elem">query</span>&gt;
+  <br>&nbsp;&nbsp;
+  &lt;/<span class="elem">ClearQuest</span>&gt;
+</span>
+</p>
+
+<h2>Caveats</h2>
+<p>
+<ul>
+  <li>
+    When overriding the '<span class='inline'>operator</span>' on multiple values of one field, all of the operators must match.
+    <br>
+    Example:
+    <blockquote class="src">
+      &lt;<span class="elem">prompt1</span> <span class="atrb">operator</span>=<span class="atrbval">'Does Not Equal'</span>&gt;Closed&lt;/<span class="elem">prompt1</span>&gt;
+      <br>
+      &lt;<span class="elem">prompt1</span> <span class="atrb">operator</span>=<span class="atrbval">'Does Not Equal'</span>&gt;Postponed&lt;/<span class="elem">prompt1</span>&gt;
+    </blockquote>
+  </li>
+</ul>
+</p>
+
+<h2>Up Next</h2>
+<p>
+The next chapter,
+<a href='qfield.html'>Query Field Elements</a>, will introduce functionality to add more data to your ClearQuest query output without actually modifying the query in ClearQuest.
+</p>
+
+<!-- footer -->
+<table class='ftr'>
+<tr>
+  <td class='ftrl'><a href='query.html' class='ftr'><img src='arrow-l.gif'/> Query Elements</a></td>
+  <td class='ftrc'><a href='index.html' class='ftr'><img src='arrow-u.gif'/> Table of Contents</a></td>
+  <td class='ftrr'><a href='qfield.html' class='ftr'>Query Field Elements <img src='arrow-r.gif'/></a></td>
+</tr>
+</table>
+</body>
+</html>

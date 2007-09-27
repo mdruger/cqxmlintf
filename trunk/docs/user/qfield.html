@@ -1,0 +1,138 @@
+<html>
+<head>
+<title>CQ/XML - Query Field Elements</title>
+<link rel='stylesheet' type='text/css' href='cqxmldocs.css'/>
+</head>
+
+<body>
+<center>
+  <h1>ClearQuest/XML Interface User Guide</h1>
+</center>
+
+<h2>Query Field Elements</h2>
+<p>
+Query field elements allow you to specify additional fields in the output
+of ClearQuest queries.  Doing so does not alter your query.  This
+functionality is useful for interfaces that run user queries but need
+particular fields in the query results.  For example, not all user queries
+return the '<span class='inline'>Id</span>' field which is rather important
+for almost all interfaces.  You could use a query field element to add
+'<span class='inline'>Id</span>' to every query and guarentee that
+'<span class='inline'>Id</span>' is always present.
+</p>
+<p>
+Like <a href='field.html'>field elements</a>, query field elements do not
+have standard names.  Instead their names reflect each field's database
+column name.  For example, the query field element for the
+'<span class='inline'>Headline</span>' field is:
+&lt;<span class="elem">headline</span>/&gt; while the query field element
+for the '<span class='inline'>Version</span>' field is:
+&lt;<span class="elem">version_reported</span>/&gt;.
+A complete list of fields and their corresponding database column names is
+available via the
+<a href='http://engrdocs.site/clearquest/datadictionary.html'>ClearQuest Data Dictionary</a>.
+Alternatively, within ClearQuest click on the field label and the database
+column will be displayed as <span class='inline'>DB Field Name</span>.
+</p>
+<p>
+Query Field elements have no attributes.
+<center>
+  <table cellspacing='0' cellpadding='2' width='80%' border='1'>
+  <tr>
+    <th>Attribute</th>
+    <th>Description</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td>-</td>
+    <td>-</td>
+    <td>-</td>
+  </tr>
+</table>
+</center>
+</p>
+
+<h2>Query Field Element Examples</h2>
+<p>
+<table cellspacing='0' cellpadding='2' border='0'>
+<tr>
+  <td class='data'>Add '<span class='inline'>Id</span>' to query output:</td>
+  <td class='data src'>&lt;<span class="elem">id</span>/&gt;</td>
+</tr>
+<tr>
+  <td class='data'>Add '<span class='inline'>Originally Reported</span>' to query output:</td>
+  <td class='data src'>&lt;<span class="elem">reported</span>/&gt;</td>
+</tr>
+</table>
+</p>
+
+<h2>Putting It Together</h2>
+<p>
+Using the information from the previous chapters, here's how you would
+perform some common or advanced query tasks:
+</p>
+<p>
+Run public query '<span class='inline'>My To Do List</span>' and add
+'<span class='inline'>Submitter</span>':
+<br>
+<span class='src'>
+  &nbsp;&nbsp;
+  &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;<span class="elem">query</span> <span class="atrb">name</span>=<span class="atrbval">'Public Queries/My To Do List'</span> <span class="atrb">wait</span>=<span class="atrbval">'yes'</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">submitter</span>/&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;/<span class="elem">query</span>&gt;
+  <br>&nbsp;&nbsp;
+  &lt;/<span class="elem">ClearQuest</span>&gt;
+</span>
+</p>
+<p>
+Run public query '<span class='inline'>Prompt Old Defect #</span>' and add
+'<span class='inline'>Originally Reported</span>':
+<br>
+<span class='src'>
+  &nbsp;&nbsp;
+  &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span>&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;<span class="elem">query</span> <span class="atrb">name</span>=<span class="atrbval">'Public Queries/Prompt Old Defect #'</span> <span class="atrb">wait</span>=<span class="atrbval">'yes'</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">prompt1</span>&gt;SC330767&lt;/<span class="elem">prompt1</span>&gt;
+      <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &lt;<span class="elem">reported</span>/&gt;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;/<span class="elem">query</span>&gt;
+  <br>&nbsp;&nbsp;
+  &lt;/<span class="elem">ClearQuest</span>&gt;
+</span>
+</p>
+
+<h2>Caveats</h2>
+<p>
+<ul>
+  <li>You cannot add multi-line strings to query output via query field
+  elements.  A multi-line string is any field greater than 256 characters
+  such as '<span class='inline'>description</span>', 
+  '<span class='inline'>history_log</span>' or
+  '<span class='inline'>version_reported</span>'.
+  </li>
+</ul>
+</p>
+
+<h2>Up Next</h2>
+<p>
+The next chapter,
+<a href='info.html'>Info Elements</a>, will introduce functionality to add more interactivity to scripts that work with ClearQuest via the CQ/XML Interface.
+</p>
+
+<!-- footer -->
+<table class='ftr'>
+<tr>
+  <td class='ftrl'><a href='prompt.html' class='ftr'><img src='arrow-l.gif'/> Prompt Elements</a></td>
+  <td class='ftrc'><a href='index.html' class='ftr'><img src='arrow-u.gif'/> Table of Contents</a></td>
+  <td class='ftrr'><a href='info.html' class='ftr'>Info Elements <img src='arrow-r.gif'/></a></td>
+</tr>
+</table>
+</body>
+</html>

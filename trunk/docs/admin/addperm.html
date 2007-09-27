@@ -1,0 +1,85 @@
+<html>
+<head>
+<title>Adding a Permissions Entry</title>
+<link rel='stylesheet' type='text/css' href='admin.css' />
+<link rel='shortcut icon' href='pics/page_edit.png' />
+</head>
+
+<body>
+<table class='hdr'>
+<tr>
+  <td><a href='admin.html'>&#171; CQ/XML Admin Docs</a></td>
+  <th>Adding a Permissions Entry</th>
+  <td align='right'><b>Updated:</b> <script>document.write( document.lastModified );</script></td>
+</tr>
+</table>
+
+<h3>Modification Process</h3>
+<ol>
+  <li><a href='login.html'>Login to the server as <code>cqxmlusr</code></a></li>
+  <li>Edit the file <code>/opt/cqxmlintf/data/recmod.xml</code></li>
+  <li>Save the file.</li>
+  <li>Logout.</li>
+</ol>
+
+<h3>The Record Modification File</h3>
+The record modification file will look like the following:
+
+    <pre>
+      &lt;IpRecMod&gt;
+        &lt;login1&gt;
+          &lt;defect&gt;
+            &lt;product&gt;Product A&lt;/product&gt;
+          &lt;/defect&gt;
+        &lt;/login1&gt;
+        &lt;login2&gt;
+          &lt;defect&gt;
+            &lt;product.division&gt;Division A&lt;/product.division&gt;
+          &lt;/defect&gt;
+        &lt;/login2&gt;
+        &lt;ip192.168.0.1&gt;
+          &lt;defect&gt;
+            &lt;product&gt;Product A&lt;/product&gt;
+            &lt;product&gt;Product B&lt;/product&gt;
+            &lt;product&gt;Product C&lt;/product&gt;
+            &lt;component&gt;Component D1&lt;/component&gt;
+            &lt;component&gt;Component D2&lt;/component&gt;
+            &lt;id&gt;defect01230000&lt;/id&gt;
+          &lt;/defect&gt;
+        &lt;/ip192.168.0.1&gt;
+      &lt;/IpRecMod&gt;</pre>
+Notice that the XML document, like the encryption keys file, accepts both ip addresses and ClearQuest logins.  However, unlike the encryption keys file, the file is not divided into sections.
+
+<h3>Adding Entries</h3>
+<p>
+Modification permissions can be granted to any user or ip address for any record based on the values of fields on those records.  For example, you can allow a user to modify defect records based on the product field or allow an ip address to only modify defects in a certain state.
+</p>
+<p>
+You can extend this functionality by using the ClearQuest reference dot-notation.  Notice in the example file listed above that <code>login2</code> is allowed to update <code>defect</code> records based on the defect's product's division.  
+</p>
+<p>
+The basic format for the record modification file is as follows:
+
+      <pre class='code'>
+      &lt;IpRecMod&gt;
+        &lt;[login]&gt;
+          &lt;[record type]&gt;
+            &lt;[test field1]&gt;[field value]&lt;/[test field1]&gt;
+            &lt;[test field2]&gt;[field value]&lt;/[test field2]&gt;
+          &lt;/[record type]&gt;
+        &lt;/[login]&gt;
+        &lt;ip[address]&gt;
+          &lt;[record type]&gt;
+            &lt;[test field]&gt;[field value]&lt;/[test field]&gt;
+          &lt;/[record type]&gt;
+        &lt;/ip[address]&gt;
+      &lt;/IpRecMod&gt;</pre>
+</p>
+<p>
+Notice that the actual ip address used as the element name is preceeded with the string '<code>ip</code>'.  Failure to adhere to this convention will create invalid XML elements.  (XML elements must start with a letter or underscore.)  Invalid XML in the record modification file causes the XML parser to go into deep recursion whenever it tries to read the file.  The CQ/XML Interface tries to read the file when it changes.  In other words, the CQ/XML Interface will crash the first time somebody sends a request.
+</p>
+<p>
+When determining if a user or ip has permissions to modify a particular file, the ClearQuest XML Interface will check the current record against each permissions entry for that user or ip until it finds a match or runs out of tests.  This is significant because it means the login in the record modification file is <code>OR</code>'d and not <code>AND</code>'d.
+</p>
+</body>
+</html>

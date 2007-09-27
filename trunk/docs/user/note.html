@@ -1,0 +1,119 @@
+<html>
+<head>
+<title>CQ/XML - Note Elements</title>
+<link rel='stylesheet' type='text/css' href='cqxmldocs.css'/>
+</head>
+
+<body>
+<center>
+  <h1>ClearQuest/XML Interface User Guide</h1>
+</center>
+
+<h2>Note Elements</h2>
+<p>
+Note elements allow you to view note records in ClearQuest.  The note element has one required and two optional attributes.
+<center>
+  <table cellspacing='0' cellpadding='2' width='80%' border='1'>
+  <tr>
+    <th>Required&nbsp;Attribute</th>
+    <th>Description</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>the unique key of the note</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <th>Optional&nbsp;Attribute</th>
+    <th>Description</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td>action</td>
+    <td>the action to perform on the note</td>
+    <td>
+      <li>valid values: '<span class='inline'>view</span>'</li>
+      <li>if the attribute is omitted, '<span class='inline'>view</span>' is assumed, but will generate an error if no <i>value</i> is specified (ie: <span class='inline'>action=""</span>)</li>
+    </td>
+  </tr>
+  <tr>
+    <td>wait</td>
+    <td>Should the action be performed now or queued up for later?</td>
+    <td>
+      <li>valid values: yes, no</li>
+      <li>if the attribute is omitted, '<span class='inline'>no</span>' is assumed, but will generate an error if no <i>value</i> is specified (ie: <span class='inline'>wait=""</span>)</li>
+    </td>
+  </tr>
+</table>
+</center>
+</p>
+
+<h2>Note Element Examples</h2>
+<p>
+<table cellspacing='0' cellpadding='2' border='0'>
+<tr>
+  <td class='data'>View note output to log:</td>
+  <td class='data src'>
+    &lt;<span class="elem">note</span> <span class="atrb">id</span>=<span class="atrbval">'pract00301000-0000-000'</span>&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'>Same as previous example:</td>
+  <td class='data src'>
+    &lt;<span class="elem">note</span> <span class="atrb">id</span>=<span class="atrbval">'pract00301000-0000-000'</span> <span class="atrb">action</span>=<span class="atrbval">'view'</span> <span class="atrb">wait</span>=<span class="atrbval">'no'</span>&gt;
+  </td>
+</tr>
+<tr>
+  <td class='data'>View note, but wait for output:</td>
+  <td class='data src'>
+    &lt;<span class="elem">note</span> <span class="atrb">id</span>=<span class="atrbval">'pract00301000-0000-000'</span> <span class="atrb">action</span>=<span class="atrbval">'view'</span> <span class="atrb">wait</span>=<span class="atrbval">'yes'</span>&gt;
+  </td>
+</tr>
+</table>
+</p>
+
+<h2>Putting It Together</h2>
+<p>
+Using the information from the <a href='rootelem.html'>ClearQuest Root Element</a> chapter, logging-in and viewing a note would look like this:
+</p>
+<p>
+<span class='src'>
+&nbsp;&nbsp;
+  &lt;<span class="elem">ClearQuest</span> <span class="atrb">login</span>=<span class="atrbval">'cq_user'</span> <span class="atrb">password</span>=<span class="atrbval">'password'</span> <span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span> <span class="atrb">email-fail</span>=<span class="atrbval">'cq_user@mentor.com'</span>&gt;
+  <br>
+&nbsp;&nbsp;&nbsp;&nbsp;
+    &lt;<span class="elem">note</span> <span class="atrb">id</span>=<span class="atrbval">'pract00301000-0000-000'</span> <span class="atrb">action</span>=<span class="atrbval">'view'</span> <span class="atrb">wait</span>=<span class="atrbval">'no'</span>/&gt;
+  <br>
+&nbsp;&nbsp;
+  &lt;/<span class="elem">ClearQuest</span>&gt;
+</span>
+</p>
+
+<h2>Caveats</h2>
+<p>
+<ul>
+  <li>New notes must be created from defect records.</li>
+  <ul>
+    <li>To do this, use the '<span class='inline'>defect</span>' record and update the '<span class='inline'>Note_Entry</span>',
+    '<span class='inline'>note_customer</span>', '<span class='inline'>note_release</span>' and/or '<span class='inline'>note_resolution</span>' fields.</li>
+  </ul>
+</ul>
+</p>
+
+<h2>Up Next</h2>
+<p>
+You can view a defect and a note.  The next chapter,
+<a href='sr.html'>Service_Request Elements</a>, will show how to view service_request records.
+</p>
+
+<!-- footer -->
+<table class='ftr'>
+<tr>
+  <td class='ftrl'><a href='field.html' class='ftr'><img src='arrow-l.gif'/> Field Elements</a></td>
+  <td class='ftrc'><a href='index.html' class='ftr'><img src='arrow-u.gif'/> Table of Contents</a></td>
+  <td class='ftrr'><a href='sr.html' class='ftr'>Serivce_Request Elements <img src='arrow-r.gif'/></a></td>
+</tr>
+</table>
+</body>
+</html>
