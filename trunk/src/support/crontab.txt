@@ -19,5 +19,5 @@
 #   limitations under the License.
 ###########################################################################
 # m(0-59) h(0-23) d(1-31) M(1-12) W(0[Sun]-6) cmd
-2,7,12,17,22,27,32,37,42,47,52,57 * * * * /scratch1/rational/clearquest/bin/cqperl /user/ce_svr/ChangeManagement/Interface/ClearCase/src-cp/cqxi_chklive.pl --f -s -u 
-0,5,10,15,20,25,30,35,40,45,50,55 * * * * /scratch1/rational/clearquest/bin/cqperl /user/ce_svr/ChangeManagement/Interface/ClearCase/src-cp/cqxi_queued.pl -q -s
+2,7,12,17,22,27,32,37,42,47,52,57 * * * * /opt/rational/clearquest/bin/cqperl /opt/cqxmlintf/cqxi_chklive.pl --f -u
+0,5,10,15,20,25,30,35,40,45,50,55 * * * * /opt/rational/clearquest/bin/cqperl /opt/cqxmlintf/cqxi_queued.pl -q

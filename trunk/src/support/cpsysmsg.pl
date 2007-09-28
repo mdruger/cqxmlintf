@@ -37,13 +37,13 @@ local $errspc = $errhdr; $errspc =~ tr/!/ /c;   # error header spacing
                                                 # sys msg output location
 my $srcsmfile = '//cqmsgsvr/cqweb$/sys_message.js';
                                                 # system message src location
-my $xmlsmfile = '//indshare/sysmsg.txt';
-my $xmllmfile = '//indshare/sysmsglong.txt';
+my $xmlsmfile = '//indshare/cqxmlintf/src/data/sysmsg.txt';
+my $xmllmfile = '//indshare/cqxmlintf/src/data/sysmsglong.txt';
                                                 # CQ RSS location
 my $rsssmfile = '//cqmsgsvr/cqweb$/rss/cqrss.xml';
                                                 # cq downtime page
 my $downtime  = 'http://engrdocs.site/clearquest/downtimes.html';
-my $mailadrs  = 'cqsupport@mentor.com';            # to/from address
+my $mailadrs  = 'cqsupport@domain.com';            # to/from address
 
 ###########################################################################
 #   dynamic variables

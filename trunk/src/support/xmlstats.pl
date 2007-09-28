@@ -296,7 +296,7 @@ sub FindUsrInfo
         $msg = $ldap->bind;                     # login to ldap server
         foreach $usr ( keys( %users ) )         # go thru users
         {
-            $mailusr = "$usr\@mentor.com";      # append domain & find user
+            $mailusr = "$usr\@domain.com";      # append domain & find user
             $msg = $ldap->search( base => '#fix',
                                   scope => 'sub',
                                   filter => "mail=$mailusr" );
