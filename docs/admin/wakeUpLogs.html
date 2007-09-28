@@ -19,7 +19,7 @@
 When the CQ/XML Logs web servers restart, they forget to serve up the XML logs when they come back online.  Therefore, we need to remind the servers after each reboot.
 </p>
 <p>
-The practice logs are served up from svr-orw-dts-qa6 and the production logs are served from cqmsgsvr.  Login to the applicable machine via Terminal Server.
+The practice logs are served up from <code>cqqa06</code> and the production logs are served from <code>cqmsgsvr</code>.  Login to the applicable machine via Terminal Server.
 </p>
 <p>
 From the Start menu, select Settings
@@ -40,11 +40,11 @@ Internet Information Services (IIS) Manager
     <br>
     &nbsp;&nbsp;&nbsp;&nbsp;[Server Name] &#187; Web Sites &#187; Default Web Site
     <br>
-    On dts-12, select cqxmllogs (on dts-qa6, select cqxmllogs_practice).  Wait for the right pane to automatically refresh and show a file list.
+    On <code>cqmsgsvr</code>, select cqxmllogs (on <code>cqqa06</code>, select cqxmllogs_practice).  Wait for the right pane to automatically refresh and show a file list.
     That's it!  Now check the logs for 
 <a href='http://cqmsgsvr.site/cqxmllogs'>production<img src='pics/newwin.gif'></a>
 and
-<a href='http://svr-orw-dts-qa6.site/cqxmllogs_practice'>practice<img src='pics/newwin.gif'></a>.
+<a href='http://cqqa06.site/cqxmllogs_practice'>practice<img src='pics/newwin.gif'></a>.
     If they show a list of files then you're good to go.  Shut it all down and go home.
   </td>
   <td>&nbsp;</td>
