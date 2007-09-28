@@ -1,0 +1,7 @@
+#summary Distribution Caveats.
+#labels Featured,Phase-Deploy,Phase-Implementation
+
+=== Distribution Caveats ===
+  * I had to rip out the MGC proprietary code.  Nothing big.  Stuff like server names, network paths, etc.  You would have had to change it yourself anyway.  Start with src/cqsvrvars.pm, read the admin docs and look over the code for obvious hard-coded values.
+  * One of the admin documents, 'Synopsis: Logs' is not complete yet.  It just got dropped in leu of getting the source uploaded and published.  Right after I send this off I'll probably start working on the document again.
+  * The admin doc 'Logging-in to the CQ/XML Server' was intentionally removed from the public distribution.
