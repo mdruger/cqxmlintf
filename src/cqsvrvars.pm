@@ -24,7 +24,7 @@ package CqSvr;                                  # as promised - our package name
 $osiswin    = defined( $ENV{OS} ) && $ENV{OS} =~ /^Windows/os ? 1 : 0;
 $port       = 5556;                             # open tcp port
 $tcpproto   = getprotobyname( 'tcp' );          # get protocol num for tcp
-@mailerrto  = qw( cqsupport@mentor.com );          # mail errors to...
+@mailerrto  = qw( cqsupport@domain.com );          # mail errors to...
 
 ### filename vars #########################################################
                                                 # CQ Perl on UNIX
