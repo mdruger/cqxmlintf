@@ -15,18 +15,74 @@
 </table>
 
 <p>
-Over time the logs have become both a source of unequalled information and a huge headache.  This document will explain the log mechanism and how the logs can be used to extract data about the state of the CQ/XML server.
+Over time the logs have become both a source of unequalled information and a huge headache.  This document will explain the logging mechanism and how the logs can be used to extract data about the state of the CQ/XML server.
 </p>
-<p>
-Here's the high-level flow of how logs <i>move</i> throughout the CQ/XML server:
+
+<h3>Log Flow</h3>
 <ol>
-  <li>if the live server successfully pre-parses the incoming XML, it is written to a temporary file</li>
+  <li>When the live server starts, it drops a temporary file.</li>
   <ul>
-    <li><code>[instdir]/svrout/cqxi.ipq_[cqtan]</code>, a.k.a. #fix - left off here</li>
+    <li class='code'>[instdir]/svrout/cqxi.<b>ipq</b>_[yyddd]<b>s</b>[cqtan]</li>
+    <li>a.k.a. <b>I</b>n <b>P</b>rocess <b>Q</b>ueue file, or "IPQ file"</li>
+  </ul>
+  <li>If the live server successfully parses the incoming XML, it drops an IPQ file.</li>
+  <ul>
+    <li class='code'>[instdir]/svrout/cqxi.ipq_[yyddd]<b>n</b>[cqtan]</li>
+    <li>When an IPQ file is written, connection information (client &amp; ip) is appeneded to the file.  It may look like good XML but since it has two root elements, it technically is not well formed.</li>
+    <li>If there is a problem writting the IPQ file, an error is written to a "live log" file.</li>
+    <ul>
+      <li class='code'>[instdir]/svrout/cqxi.<b>l</b>_[yyddd]n[cqtan]</li>
+    </ul>
+  </ul>
+  <li>If the incoming XML is not parseable, it is written to a live log with an error.</li>
+  <ul>
+    <li>I know, bad idea.  Now the public logs are going to be broken.</li>
+  </ul>
+  <li>Once the ClearQuest request(s) complete, the output is written to a live log file and the IPQ file is renamed to a "queue log" file.</li>
+  <ul>
+    <li class='code'>[instdir]/svrout/cqxi.<b>q</b>_[yyddd]n[cqtan]</li>
+  </ul>
+  <li>The queue manager process (which fires every five minutes) opens the "public queue log" and positions the file pointer appropriately.</li>
+  <ul>
+    <li class='code'>[pubdir]/cqxi_<b>q</b>[yyddd].xml</code>
+    <li><code>[pubdir]</code> is specified in the <code>cqsvrvars.pm</code> configuration file</li>
+  </ul>
+  <li>If there are queue logs, the queue manager opens each file and checks if there is some work to be done.</li>
+  <ul>
+    <li>Recall, this is determined by the '<a class='code' href='../user/defect.html'>wait</a>' value.</li>
+  </ul>
+  <li>If there is no queued work to perform, append message to public queue log stating so.</li>
+  <li>If there <i>is</i> queued work, perform the ClearQuest request(s) and log to the public queue log.</li>
+  <li>Finally, the queue manager takes all of the live logs and joins them in a "public live log".
+  <ul>
+    <li class='code'>[pubdir]/cqxi_<b>l</b>[yyddd].xml</code>
+  </ul>
+  <li>Archive the IPQ files.</li>
+  <ul>
+    <li class='code'>[instdir]/svrout/archive/[yymmm]/</li>
   </ul>
 </ol>
-When we originally
+
+<h3>Using the Log Files</h3>
+<p>
+Now that you know how the system interacts with the system, you should be in a good position to use the logs for diagnosing the status of the system.
 </p>
+<p>
+If a user reports a problem you can use either the public logs or the IPQ files to lookup the request that the user sent to the server.  More often than not, the user has forgotten to add the '<a class='code' href='../user/defect.html'>wait="yes"</a>' attribute to their ClearQuest request.  The public logs are a good reference to point the users to.  Hopefully in the future they would use them to diagnose the problem themselves.
+</p>
+<p>
+If you need more information than the public logs provide, you can always review the IPQ files.  Since they have connection information embedded in them, they provide a little more information for diagnosing problems.  Additionally, since they are individual files they may be easier to search depending on the tools you use to search.
+</p>
+<p>
+The logs can also be used to generate metrics for the CQ/XML Interface.  We use the script <code>support/xmlstats.pl</code> to parse the public logs and generate monthly usage statistics.
+</p>
+
+<h3>Oddities</h3>
+<ul>
+  <li>The CQ/XML Interface uses GMT for its date/time setting.  Consequently, the filename dates may not match the date of the server.</li>
+  <li>Be careful with the IPQ files.  Since they are direct copies of the incoming XML (plus additional communication information) they still contain the user's ClearQuest password, if specified by the user.</li>
+  <li>One time our queue server stopped archiving the live log and queue log files.  So we wrote a script to clean up all the existing logs (<code>support/clnTmp2PubLogs.pl</code>).  After we ran the clean up script, the queue server started working just fine.  As a result, we were not able to diagnose the root of the problem.</li>
+</ul>
 
 <!--
 I assumed the Synopsis: public logs would talk about how to check the logs for if a user has executed something against the server.
