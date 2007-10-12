@@ -17,10 +17,14 @@
 <ol>
   <li>From ClearCase, copy the new files to an empty directory that is accesible from the CQ/XML server.</li>
   <ul>
-    <li>I always create a subdirectory in <code>//indshare/cqxmlintf/release</code></li>
+    <li>I always create a subdirectory in <code>//indshare/cqxmlintf/release</code> .</li>
+    <li>From the CQ/XML servers, you will need to use standard UNIX paths instead of the UNC path specified above.</li>
+    <ul>
+      <li>For example, the previous path would resolve to <code>/indshare/cqxmlintf/release</code> .</li>
+    </ul>
     <li class='warn'>Henceforth, this directory will be referred to as '<code>[srcdir]</code>'.</li>
   </ul>
-  <li>Login to the server with root privileges.</li>
+  <li><a href='login.html'>Login to the server with <code>root</code> privileges.</a></li>
   <li>Run <code>/opt/cqxmlintf/cprls2svr.pl -d [srcdir]</code></li>
   <ul>
     <li>This script will copy the files and stop the currently running CQ/XML Interface process.</li>
