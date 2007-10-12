@@ -60,6 +60,7 @@
 ###########################################################################
 #   package globals
 ###########################################################################
+package CqFlds;                                 # pkg name
                                                 # field order dependencies
 my %order = ( defect =>     { product                   => 0,
                               component                 => 1,
