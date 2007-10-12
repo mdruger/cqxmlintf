@@ -221,7 +221,7 @@ sub ReadEncKeys
     foreach $enctype ( keys( %xmlread ) )       # enc by ip or user
     {
                                                 # if unknown data struct, ignore
-        next if ( ref( $xmlread{$ip} ) ne 'HASH' );
+        next if ( ref( $xmlread{$enctype} ) ne 'HASH' );
                                                 # go thru id's
         foreach $id ( keys( %{$xmlread{$enctype}} ) )
         {
