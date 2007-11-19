@@ -1,0 +1,42 @@
+<html>
+<head>
+<title>Generating Monthly Statistics</title>
+<link rel='stylesheet' type='text/css' href='admin.css' />
+<link rel='shortcut icon' href='pics/date.png' />
+</head>
+
+<body>
+<table class='hdr'>
+<tr>
+  <td><a href='admin.html'>&#171; CQ/XML Admin Docs</a></td>
+  <th>Generating Monthly Statistics</th>
+  <td align='right'><b>Updated:</b> <script>document.write( document.lastModified );</script></td>
+</tr>
+</table>
+
+<p>
+Creating the monthly statistics requires very little effort.  Navigate into the source repository and cd down into the <code>support</code> directory.  From there you should be able to see the file <code>xmlstats.pl</code>.  Running this file without arguments will force the script to run, logging activity from the last 30 days to standard-out (<code>STDOUT</code>).
+</p>
+<p>
+That's it!  However it's more useful to redirect the output to a file.  Specifying the <code>-o</code> option with a filename will save the output to that file.  In the past I have been saving all the files into <code>../docs/logs/[yy][mm]xmlusg.log</code>, where <code>[yy]</code> is the 2-digit year and <code>[mm]</code> is the 2-digit month.
+</p>
+<p>
+The hardest part is remembering to run the script at the correct time.  Since the CQ/XML Interface uses GMT, the best time to generate the monthly statistics is just after midnight GMT on the last day of the month.  (In effect, the CQ/XML Interface already thinks it's tomorrow.)  In the Pacific Timezone this is 16:00PST or 17:00PDT.
+</p>
+<p>
+Once <code>xmlstats.pl</code> completes execution you may need to modify the summary at the bottom of the output file.  This is due to new users using the system every month.  Those new users may not have LDAP mappings for their group and/or division.  Those mappings are pulled from <code>xmlstats.pm</code> so you can fix it and re-run the script or you can leave it for the next guy.
+</p>
+<p>
+Remember to check-in the log file when you're done.
+</p>
+<h3>Sample</h3>
+<pre>
+  $ cd .../src/support
+  $ xmlstats.pl -o ../docs/logs/0711xmlusg.log
+  Searching logs from the last 30 days...
+  From '07333' to '07303': 30 files found
+  $
+</pre>
+
+</body>
+</html>
