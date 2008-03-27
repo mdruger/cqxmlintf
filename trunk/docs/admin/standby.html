@@ -1,0 +1,65 @@
+<html>
+<head>
+<title>Putting the Server in Standby</title>
+<link rel='stylesheet' type='text/css' href='admin.css' />
+<link rel='shortcut icon' href='pics/server_delete.png' />
+</head>
+
+<body>
+<table class='hdr'>
+<tr>
+  <td><a href='admin.html'>&#171; CQ/XML Admin Docs</a></td>
+  <th>Putting the Server in Standby</th>
+  <td align='right'><b>Updated:</b> <script>document.write( document.lastModified );</script></td>
+</tr>
+</table>
+
+<p>
+With the CQ/XML Interface in standby mode, users can not submit new requests to the server.  Instead the server returns the error specified by the administrator during the standby process.
+</p>
+<p>
+This functionality is most useful during <a href='patch.html'>system upgrades</a> or downtimes.  Instead of killing the server and praying that nobody had an active ClearQuest connection at the time, you can put the system in standby, wait a minute and then yank the cord.
+</p>
+
+<h3>Putting the Server in Standby</h3>
+<p>
+To put the server in standby, send a ClearQuest request <code>&lt;info /&gt;</code> element with the <code>type</code> attribute set to <code>syswait</code>.
+</p>
+<table>
+<span class='sample'>
+<h4>Sample <code>&lt;info /&gt;</code> request</h4>
+<pre>
+  <b>$ <code>cat syswait.xml</code></b>
+  &lt;ClearQuest login='cqadm1' password='*****' repo='prodr' db='prodd'&gt;
+    &lt;info type="syswait" wait="yes"&gt;The CQ/XML Server is down for servicing.&lt;/info&gt;
+  &lt;/ClearQuest&gt;
+  <b>$ <code>cqclient.pl -s cqprodxml -f syswait.xml</code></b>
+  cqclient.pl: ERROR - error returned from server !
+    &lt;ClearQuest db='prodd' login='cqadm1' cqtan='07332n000004' client='node1.sitedomain.com' ip='192.168.0.100'&gt;
+      &lt;info type='syswait' status='error'&gt;message written to 'svrout/cqxi.sw_07332n000004'.&lt;/info&gt;
+    &lt;/ClearQuest&gt;
+</pre>
+</span>
+<p>
+The ClearQuest user must have ClearQuest administrator privileges to put the server in standby.  The PCDATA that is passed with the <code>&lt;info /&gt;</code> element will be returned to any users as a CQ/XML error.  In case you didn't notice, the original request returns an error as well.  That's so <code>cqclient.pl</code> will beep and raise your attention.
+</p>
+<span class='sample'>
+<h4>Return from server in standby</h4>
+<pre>
+  <b>$ <code>cqclient.pl -s cqprodxml -f stdcqreq.xml</code></b>
+  cqclient.pl: ERROR - error returned from server !
+    &lt;ClearQuest db='' login='' cqtan='07332n000005' client='node1.sitedomain.com' ip='192.168.0.100'&gt;
+      &lt;system cqtan='07332n000004' status='error'&gt;The CQ/XML Server is down for servicing.&lt;/system&gt;
+    &lt;/ClearQuest&gt;
+</pre>
+
+
+<h3>Resuming Normal Functionality</h3>
+<p>
+Underneath it all, this works by writing out a temporary file.  (You may have noticed it in the return message from the <code>syswait</code> request.)  The CQ/XML Interface checks for the existance of a filename matching a particular format.  If it finds, the CQ/XML Interface goes into standby.  If not, it resumes normal activity.
+</p>
+<p>
+Re-enabling the CQ/XML Interface should be pretty obvious at this point; remove the file.  You will need to <a href='login.html'>login</a> to the server and manually remove the file named in the request's return message.
+</p>
+</body>
+</html>
