@@ -42,7 +42,7 @@ my $xmllmfile = '//indshare/cqxmlintf/src/data/sysmsglong.txt';
                                                 # CQ RSS location
 my $rsssmfile = '//cqmsgsvr/cqweb$/rss/cqrss.xml';
                                                 # cq downtime page
-my $downtime  = 'http://engrdocs.site/clearquest/downtimes.html';
+my $downtime  = 'http://engrdocs.sitedomain.com/clearquest/downtimes.html';
 my $mailadrs  = 'cqsupport@domain.com';            # to/from address
 
 ###########################################################################
@@ -252,7 +252,7 @@ sub GenRssStarter
     <channel>
       <channel>
         <title>ClearQuest</title>
-        <link>http://engrdocs.site/clearquest/index.html</link>
+        <link>http://engrdocs.sitedomain.com/clearquest/index.html</link>
         <description>ClearQuest</description>
         <date>$gmtdate</date>
       </channel>
