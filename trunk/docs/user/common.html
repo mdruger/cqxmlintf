@@ -61,7 +61,7 @@
   <li class='hilite'>Although the CQ/XML Interface can prohibit actions against defects based on its <a href='common.html#misc_perm'>permissions model</a>, it is still possible to corrupt a large number of defects rather quickly if you are not careful.  Therefore, before deploying into production you should <b>do all development and testing against the practice database</b> (<span class='src'><span class="atrb">db</span>=<span class="atrbval">'pract'</span> <span class="atrb">repo</span>=<span class="atrbval">'practice'</span></span>).  If you corrupt data in the <i>production</i> database <b>we will be unable to back out the changes you have introduced</b>.</li>
   <li>ClearQuest email notification works through the CQ/XML Interface just like the ClearQuest web interface.</li>
   <ul>
-    <li>ClearQuest record <a href='http://engrdocs.site/clearquest/notification.html'>modifications that cause ClearQuest to send email</a> will still send email.</li>
+    <li>ClearQuest record <a href='http://engrdocs.sitedomain.com/clearquest/notification.html'>modifications that cause ClearQuest to send email</a> will still send email.</li>
     <li>Email to customers through the CQ/GTS Interface will still be sent.</li>
   </ul>
 </ul>
@@ -127,7 +127,7 @@
   </li>
   <li>Field element names match the field names as saved in the ClearQuest database, not the ClearQuest forms.  For example, the field on the form labelled '<span class='inline'>DEI Type</span>' is saved in the database as '<span class='inline'>defect_type</span>'.</li>
   <ul>
-    <li>A complete list of fields and their corresponding database column names is available via the <a href='http://engrdocs.site/clearquest/datadictionary.html'>ClearQuest Data Dictionary</a>.  Alternatively, within ClearQuest click on the field label and the database column will be displayed as '<span class='inline'>DB Field Name</span>'.</li>
+    <li>A complete list of fields and their corresponding database column names is available via the <a href='http://engrdocs.sitedomain.com/clearquest/datadictionary.html'>ClearQuest Data Dictionary</a>.  Alternatively, within ClearQuest click on the field label and the database column will be displayed as '<span class='inline'>DB Field Name</span>'.</li>
   </ul>
   <li>Recall that the schema auto-selects a reported version during the '<span class='inline'>Submit</span>' action.  To override this behavior, use the '<span class='inline'>version_reported_list</span>' field to specify a version or explicitly empty '<span class='inline'>version_reported_list<span>'.
     <table>
@@ -280,14 +280,14 @@
         <!-- <td rowspan='2/3'/> -->
         <td>Web</td>
         <td class='src'>
-        <a href='http://cqqa06.site/cqxmllogs_practice'>
-        http://cqqa06.site/cqxmllogs_practice</a>
+        <a href='http://cqqa06.sitedomain.com/cqxmllogs_practice'>
+        http://cqqa06.sitedomain.com/cqxmllogs_practice</a>
         </td>
       </tr>
       <tr>
         <!-- <td rowspan='3/3'/> -->
         <td>Windows</td>
-        <td class='src'>\\sitesite\dfs\cqxmllogs_practice</td>
+        <td class='src'>\\sitesitedomain.com\dfs\cqxmllogs_practice</td>
       </tr>
       <tr>
         <td rowspan='3'>Production</td>
@@ -298,14 +298,14 @@
         <!-- <td rowspan='2/3'/> -->
         <td>Web</td>
         <td class='src'>
-          <a href='http://cqmsgsvr.site/cqxmllogs'>
-          http://cqmsgsvr.site/cqxmllogs</a>
+          <a href='http://cqmsgsvr.sitedomain.com/cqxmllogs'>
+          http://cqmsgsvr.sitedomain.com/cqxmllogs</a>
         </td>
       </tr>
       <tr>
         <!-- <td rowspan='3/3'/> -->
         <td>Windows</td>
-        <td class='src'>\\sitesite\dfs\cqxmllogs</td>
+        <td class='src'>\\sitesitedomain.com\dfs\cqxmllogs</td>
       </tr>
       </table>
     </blockquote>
