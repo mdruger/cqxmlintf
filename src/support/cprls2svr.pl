@@ -53,7 +53,7 @@ my $buext = '.blf';                             # Backup Live File ext
 my $crontab = '/usr/bin/crontab';               # crontab executable
 my $chklive = 'cqxi_chklive.pl';                # name of chklive process
                                                 # prevent "possible typo" warn
-my @tmp = ( $CqSvr::livename, $CqSvr::queuename ); @tmp = ();
+my @tmp = ( $CqSvr::livename, $CqSvr::queuename, $CqSvr::swfile, $CqSvr::logdir ); @tmp = ();
 ### dynamic ###############################################################
 my $cmdspc = $cmdhdr; $cmdspc =~ tr/!/ /c;      # basename spacer
 my $errhdr = "$cmdhdr: ERROR -";                # error header
@@ -87,6 +87,7 @@ RmBuFiles( $xmldir ) if ( !$keepbu );           # remove backup files
 die( "$errhdr unable to close permissions on '$xmldir'!\n" )
   if ( !chmod( 0300, $xmldir ) );               # die if root chmod failed
 PromptRestart( $owner );                        # prompt to restart the live svr
+ChkRmStandby();                                 # check if svr in standby
 
 
 ###########################################################################
@@ -654,5 +655,47 @@ sub NextCronTime
     else                                        # still in this hr
     {
         return( $hr, $next );                   # return cur hr & next min
+    }
+}
+
+
+###########################################################################
+#   NAME: ChkRmStandby
+#   DESC: checks if server is in standby, if so ask if that's right
+#   ARGS: n/a
+#   RTNS: n/a
+###########################################################################
+sub ChkRmStandby
+{
+    my @standbytmps = <$xmldir/$CqSvr::logdir/$CqSvr::swfile*>;
+    my $answer = '';
+
+    return if ( !@standbytmps );                # 
+    print( "\n" );
+    print( "$cmdhdr: The XML Server is currently in the standby state.\n" );
+    print( "$cmdspc  Would you like CQ/XML transactions to resume?\n" );
+    print( "$cmdspc  [Y/n]: " );
+    chomp( $answer = <STDIN> );
+
+    if ( $answer =~ /^n/io )                    # no!
+    {
+        warn( "$wrnhdr the CQ/XML server remains in the standby state!\n" );
+        warn( "$wrnspc If you have reached this message in error, refer\n" );
+        warn( "$wrnspc to the CQ/XML Admin documentation to take the\n" );
+        warn( "$wrnspc server out of standby mode.\n" );
+    }
+    else
+    {
+                                                # if unlink ok
+        if ( unlink( @standbytmps ) == $#standbytmps+1 )
+        {
+            print( "$cmdhdr: Standby mode discontinued successfully.\n" );
+        }
+        else
+        {
+            warn( "$errhdr unable to remove all of the standby tmp files!\n" );
+            warn( "$errspc Refer to the CQ/XML Admin documentation to fix\n" );
+            warn( "$errspc this problem.\n" );
+        }
     }
 }
