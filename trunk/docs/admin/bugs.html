@@ -56,20 +56,14 @@ This are the known issues or defects that we remember:
 </table>
 Notice that the root element attributes (<code>login</code>, <code>password</code>, <code>db</code>, <code>repo</code>) are at the same level as the root element's sub-elements (<code>defect</code>).  Also notice that the <code>&lt;defect&gt;</code> attributes (<code>id</code>, <code>action</code>, <code>wait</code>) are at the same level as the <code>&lt;defect&gt;</code>'s sub-elements (<code>&lt;headline&gt;</code>).  There is really no way to tell what is an attribute and what is a sub-element.  We overcame this via two hacks.  First, almost all of our attributes have names that do not match sub-element names.  For example, in our schema we have no records named 'login' or 'password' and our defect records have no fields named 'action' or 'wait'.  You may be saying "but don't you have a field named 'id'?" or "what did you mean 'almost all of our attributes'?".  That's were the second hack comes in.  Since '<code>id</code>' is always required (<code>action</code> and <code>wait</code> are not) if we detect two of them in the parsed XML that means the user has requested the '<code>id</code>' field and we take the appropriate actions.
 </p>
-<h4>invalid XML in record permisions config file causes server to crash</h4>
-<p>
-  This is mentioned in more detail in the <a href='addenc.html'>Adding an Encryption Key</a> and <a href='addperm.html'>Adding a Permissions Entry</a> sections.
-</p>
 <h4>log may be written to wrong file</h4>
 <p>
 The CQ/XML Interface queue manager is responsible for cleaning up all of the temporary logs that the live server leaves lying around.  It reads in all the temporary logs, appends them together and writes them into the current public log.  The queue manager runs every 5 minutes so a live action that occurs between 11:55 and midnight will be recorded to the log for the following day.
 </p>
-<h4>no way to turn XML servers off</h4>
-<p>
-Currently if you want to patch the server there is no way to prevent users from logging-in.  We cross our fingers, kill the process and do our thing.  Of course once the process is dead users won't be able to connect.  The problem comes during that instant that we kill the process.  If a user is logged-in at that moment, we don't really know what happens to their work.  You can check if somebody is doing something big by looking for the <a href='logs.html'>in-process queue</a> files but that won't tell you if somebody connects between the time you check the logs and kill the process.
-</p>
 <h4>XML interface having problem when wait=no and update causes notification hook to run</h4>
-<p>This is a new one that we haven't started looking at yet.</p>
+<p>
+If the CQ/XML Interface request performs an action that causes the ACTION_NOTIFICATION hook to run and the request has specified '<code>wait=no</code>', the CQ/XML Interface will return an error.
+</p>
 <h4>want ability to create queries on the fly with the CQ/XML Interface</h4>
 <p>Sounds easy but <i>whoa</i> this is a lot of work.  We're just stalling for now.</p>
 <h4>running queries with column names with invalid XML characters breaks the logs</h4>
@@ -94,6 +88,30 @@ The same holds for fields except they can be a little more problematic.  The one
 <h4>XML returned by the CQ/XML server may not be well-formed</h4>
 <p>
 This can occur under two conditions. First, if one of the fields returned by ClearQuest has XML reserved characters such as '&lt;' or '&amp;'. Second, if there is an error with the XML sent to the server, the server will return an error and indicate where in the XML it had a problem.
+</p>
+<h4>XML reserved characters in SQL element not supported by CQ/XML</h4>
+<p>
+If you use the SQL that ClearQuest creates, you'll see this with the common SQL snippet '<code>T1.dbid &lt;&gt; 0 AND</code> ...'.  If you try to trick it and convert all the reserved characters before sending, then the database backend gets real confused because it doesn't know what to do with '<code>T1.dbid &amp;lt;&amp;gt; 0</code>'.
+</p>
+<h4>chklive should count the ipq files to warn of something bad going on</h4>
+<p>
+Recall from the <a href='logs.html'>Synopsis: Logs</a> section that the server uses temporary files we call "IPQ files".  If a bunch of these start building up, something is going wrong.  If we know that, maybe we should be checking for it.
+</p>
+<h4>query output contains a space instead of an empty string</h4>
+<p>
+This is a new one.  It looks like empty reference-lists return a space instead of nothing.  We haven't confirmed if this is a problem with the CQ/XML Interface or a user script.
+</p>
+<h4>cprls2svr should prompt before overwriting *.xml</h4>
+<p>
+As mentioned in the <a href='patch.html'>Patching a CQ/XML Server</a> section, '<code>cprls2svr.pl</code>' copies files to the server.  If '<code>*.xml</code>' are in the source, they are copied too.  This is a problem if the files are named '<code>enckeys.xml</code>' (see: <a href='addenc.html'>Adding an Encryption Key</a>) or '<code>recmod.xml</code>' (see: <a href='addperm.html'>Adding a Permissions Entry</a>).  Since the server only uses *.xml files for configurations, it should ask before overwriting these files and possibly altering the behavior of the server.
+</p>
+<h4>request against wrong repo/db causes client to hang</h4>
+<p>
+If you send a request to the CQ/XML Interface and specify a repository and database that it does not have a maintenance connection to, the server never returns anything.  If the client doesn't check for this, it appears to hang indefinitely.
+</p>
+<h4>info type='dbtype' broke when we changed the security model</h4>
+<p>
+Originally the CQ/XML Interface ran non-modifying requests as one special ClearQuest user.  When we added ClearQuest Security Context this feature broke.  Based on the very limited usage of this feature, I doubt we will address this issue any time soon.
 </p>
 
 </body>
