@@ -43,7 +43,7 @@ my $cmdhdr = $0; $cmdhdr =~ s,^.*[/\\],,;       # basename
 my $errhdr = "$cmdhdr: ERROR -";                # err header
 my $wrnhdr = "$cmdhdr: WARNING -";              # warning header
 my $wrnspc = $wrnhdr; $wrnspc =~ tr/!/ /c;      # warning spacer
-my $ldapsvr = 'mailsvr.site';           # LDAP server
+my $ldapsvr = 'mailsvr.sitedomain.com';           # LDAP server
 
 ###########################################################################
 #   dynamic globals
@@ -187,7 +187,7 @@ sub GenFileList
     my @rtn    = ();                            # init rtn array
 
                                                 # while we haven't gone too far
-    while ( $begday >= $endday && $begyr >= $endyr )
+    while ( ($begday >= $endday && $begyr == $endyr) || $begyr > $endyr )
     {
                                                 # if file exists, add to array
         push( @rtn, "$dir/${filehdr}l$begyr$begday$filetail" )
