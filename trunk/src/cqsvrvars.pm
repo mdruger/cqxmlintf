@@ -41,7 +41,9 @@ $publogtop  = $osiswin                          # if on Win, use local dir
                 : '.'
               : '/opt';                         # !Win, use /opt
 $publogdir  = "$publogtop/cqxmllogs";           # pub log dir
+$fulllogdir = "$main::cmddir/$logdir";          # full path to log dir
 $ipqfile    = "$filepre.ipq_";                  # In Progress Queue file prefix
+$swfile     = "$filepre.sw_";                   # System Wait file prefix
 $qfile      = "$filepre.q_";                    # Queue file prefix
 $lfile      = "$filepre.l_";                    # Live log prefix file
 $qpubfile   = "${filepre}_q";                   # filename hdr of queue pub log
@@ -96,7 +98,7 @@ $waitnondef = 'yes';                            # wait non-default behavior
                 defect    => {behavior => 'replace'},
                 product   => {behavior => 'replace'},
                 query     => {operator => 'equals'},
-                info      => {},
+                info      => {pcdata   => 'pcdata'},
                 note      => {},
                 service_request => {},
               );
@@ -133,6 +135,7 @@ $sysswitch  = '-s';                             # multi-system switch
                                                 # on UNIX cqperl resolves to...
 $execstrre  = '/opt/rational/clearquest/\w+/bin/\.\./\.\./\.\./common/\w+/bin/ratlperl';
 $mailerrsubj = 'CQ/XML Interface Server Error'; # subject of email error
+
 $cpenvlang  = 'en_US.UTF-8';                    # Code Page aka $ENV{LANG}
                                                 # license server redundancy
 $licenv     = '1717@licsvr03:1717@licsvr02:1717@licsvr01';
@@ -149,5 +152,18 @@ $sysmsghdr  = 'SYSTEM STATUS ALERT';            # system status message header
                 'cqproddb'  => 'production',
                 'cqprodrodb'  => 'production read-only',
               );
+                                
+### strings - corrupted queries ###########################################
+                                                # email subject
+$qryerrsubj = 'CQ/XML: corrupt or invalid query detected';
+$tuttitle   = 'ClearQuest Web Tutorial';        # web tutorial title
+$tuttopic   = 'Modifying a Query';              # web tutorial topic & url
+$tuturl     = 'http://engrdocs.sitedomain.com/clearquest/CQTut11.htm';
+                                                # cq/xml guide title
+$xmltitle   = 'ClearQuest/XML Interface User Guide';
+$xmltopic   = 'Info Elements';                  # cq/xml guide topic & url
+$xmlurl     = 'http://engrdocs.sitedomain.com/clearquest/xmldocs/info.html';
+$helptitle  = 'Global Help Desk';               # ghd title & url
+$helpurl    = 'http://mentorweb.sitedomain.com/IT/help_desk/';
 
 1;
