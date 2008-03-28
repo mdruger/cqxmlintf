@@ -1,6 +1,6 @@
 ###########################################################################
 #   NAME: cqxml.pm
-#   DESC: functions for parsing XML for the CQ listener server
+#   DESC: functions for parsing XML for the CQ  server
 #   PKG:  CqXml
 ###########################################################################
 #   Copyright 2005 Mentor Graphics Corporation
@@ -636,6 +636,10 @@ sub CqExecXml
             elsif ( $recatrb{key} eq 'login' )  # login okay?
             {
                 ($cqerr, @arrayrtn) = CQ::TestLogin( $dbinfo );
+            }
+            elsif ( $recatrb{key} eq 'syswait' )
+            {
+                ($cqerr) = CQ::SystemWait( $session, $cqtan, $record{'-content'} );
             }
             else                                # what the hell?
             {

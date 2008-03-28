@@ -284,6 +284,46 @@ sub ReadSysMsg
 
 
 ###########################################################################
+#   NAME: ChkSysWait
+#   DESC: check if a sys wait tmp file is sitting around
+#   ARGS: n/a
+#   RTNS: 0 if no wait, else cqtan of issuing cmd & pcdata sent w/ cmd
+###########################################################################
+sub ChkSysWait
+{
+    PrnDbgHdr( @_ ) if ( $debug );              # print debug info if requested
+
+    my @dirjunk = ();                           # init tmp var
+    my $sysmsg  = 'message unavailable';        # default system message
+
+    if ( opendir( LOGDIR, $CqSvr::fulllogdir ) ) # if logdir open ok
+    {
+        @dirjunk = readdir( LOGDIR );           # read contents of logdir
+        closedir( LOGDIR );                     # close logdir FH
+                                                # if syswait file found
+        if ( @dirjunk = grep( /$CqSvr::swfile/, @dirjunk ) )
+        {
+                                                # open for read
+            if ( open( SYSWAIT, "<$CqSvr::fulllogdir/$dirjunk[0]" ) )
+            {
+                                                # drink it in
+                $sysmsg = join( "\n", <SYSWAIT> );
+                close( SYSWAIT );
+            }
+                                                # should only be 1, save cqtan
+            $dirjunk[0] =~ s/^.*$CqSvr::swfile//;
+            return( $dirjunk[0], $sysmsg );     # rtn cqtan & system msg
+        }
+    }
+    else                                        # can't read log dir!
+    {
+        return( 1, $sysmsg );                   # rtn fake cqtan
+    }
+    return( );                                  # default: no sys wait
+}
+
+
+###########################################################################
 #   NAME: ChgDataPerms
 #   DESC: tightens the permissions on the file and it's parent dir
 #   ARGS: file to fix
