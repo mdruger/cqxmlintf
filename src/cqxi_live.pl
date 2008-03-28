@@ -63,6 +63,7 @@ local $debug = 0;                               # debug (default = disabled)
 local $hostname = lc( hostname() );             # local host
 #local $hostip = inet_ntoa( scalar( gethostbyname( $hostname ) ) );
 local $cqtan = 0;                               # init CQ TransAction Number
+local @syswait = ();                            # system wait?
 local $forksocket = 0;                          # forking disabled by default
 local $permchk = 1;                             # permissions enabled by default
 
@@ -104,9 +105,16 @@ while ( $paddr = accept( CSOCKET, SSOCKET ) )   # while incoming sockets are ok
     %CqSvr::modperms = CqSvr::ReadIpModPerms() if ( $permchk );
     %CqSvr::enckeys = CqSvr::ReadEncKeys();     # read pswd encryption keys
     $CqSvr::sysmsg = CqSvr::ReadSysMsg();       # read system status message
-
+    if ( @syswait = CqSvr::ChkSysWait() )       # check if sys wait file around
+    {
+                                                # prn msg thru socket
+        PrnRtnXml( \*CSOCKET, '', '', $cqtan, $clienthost, $clientip, 
+            "  <system cqtan='$syswait[0]' status='error'>$syswait[1]</system>\n" );
+        shutdown( CSOCKET, 2 );                 # stop read/write on socket
+        close( CSOCKET );                       # close client socket
+    }
                                                 # if fork enabled & fork failed
-    if ( $forksocket && !defined( $pid = fork() ) )
+    elsif ( $forksocket && !defined( $pid = fork() ) )
     {
         die( "$errhdr Cannot create child process\n" );
     }

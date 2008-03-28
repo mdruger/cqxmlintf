@@ -74,6 +74,7 @@ local $syserrs = '';                            # errs from CqSys pkg
 local %procs = ();                              # server processes
 local @pids = ();                               # pids of svr procs
 local $curpid = 0;                              # pid of this process
+local @syswait = ();                            # system wait?
 
 ###########################################################################
 #   main()
@@ -114,10 +115,20 @@ CqSvr::Log2Xml( $logfh, "svr$epoch", {date => CqSvr::ShortDateNTime(), status =>
                                                 # if queue files waiting
 if ( @qfiles = <$logdir/${CqSvr::qfile}[0-9][0-9][0-3][0-9][0-9][ns][0-9][0-9][0-9][0-9][0-9][0-9]> )
 {
+    if ( @syswait = CqSvr::ChkSysWait() )       # check if sys wait file around
+    {
+                                                # overwrite <svr>'s '\n' on Win
+        seek( $logfh, -1, 2 ) if $CqSvr::osiswin;
+                                                # print system waiting...
+        print( $logfh "  <system cqtan='$syswait[0]' status='error'>$syswait[1]</system>" );
+    }
+    else                                        # system waits for nobody!
+    {
                                                 # read ip mod perms unless skip
-    %CqSvr::modperms = CqSvr::ReadIpModPerms() if ( $permchk );
-    %CqSvr::enckeys = CqSvr::ReadEncKeys();     # read pswd encryption keys
-    ProcessQueued( @qfiles );                   # process the queued file
+        %CqSvr::modperms = CqSvr::ReadIpModPerms() if ( $permchk );
+        %CqSvr::enckeys = CqSvr::ReadEncKeys(); # read pswd encryption keys
+        ProcessQueued( @qfiles );               # process the queued file
+    }
 }
 else                                            # no files waiting
 {
@@ -127,7 +138,7 @@ else                                            # no files waiting
 print( $logfh "</svr$epoch>\n" );               # close server element
 print( $logfh "</$CqSvr::rootelem>" );          # prn root elem close to log
 close( $logfh );                                # close log file
-RecordLiveLog ( <$logdir/${CqSvr::lfile}[0-9][0-9][0-3][0-9][0-9][ns][0-9][0-9][0-9][0-9][0-9][0-9]> );
+RecordLiveLog ( <$logdir/${CqSvr::lfile}[0-9][0-9][0-3][0-9][0-9][ns][0-9][0-9][0-9][0-9][0-9][0-9]> ) if ( !@syswait );
 
 
 ###########################################################################
