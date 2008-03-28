@@ -54,4 +54,6 @@ body.links p a      { font-weight: normal; text-decoration: underline; }
 .copy   { background-color: #eef; border-top: 1px solid #99c; font-size: 8pt; margin-top: 20px; text-align: center; width: 100%; }
 .note   { font-size: 80%; font-style: italic; }
 .sep    { border-top: 1px solid #99c; width: 100%; }
+.sample h4  { border-bottom: 1px solid #99c; font-size: 100%; }
+.sample pre { margin: 0px; }
 .warn   { color: #b00; }

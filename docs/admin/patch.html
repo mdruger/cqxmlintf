@@ -24,8 +24,12 @@
     </ul>
     <li class='warn'>Henceforth, this directory will be referred to as '<code>[srcdir]</code>'.</li>
   </ul>
+  <li><a href='standby.html'>Put the server in standby.</a></li>
+  <ul>
+    <li>This prevents users from connecting to the server while the software is being upgraded.</li>
+  </ul>
   <li><a href='login.html'>Login to the server with <code>root</code> privileges.</a></li>
-  <li>Run <code>/opt/cqxmlintf/cprls2svr.pl -d [srcdir]</code></li>
+  <li>Run <code>/opt/cqxmlintf/cprls2svr.pl -k -d [srcdir]</code></li>
   <ul>
     <li>This script will copy the files and stop the currently running CQ/XML Interface process.</li>
     <li>The CQ/XML Interface will restart within 5 minutes.</li>
