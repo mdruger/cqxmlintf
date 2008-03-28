@@ -29,6 +29,7 @@ use CQPerlExt;                                  # need all the CQ junk
 require( 'cqflds.pm' );                         # field order
 require( 'cqextvars.pm' );                      # ClearQuest variables
 require( 'cqsvrfuncs.pm' );                     # cq svr functions
+require( 'cqsys.pm' );                          # sys-lvl functions
 
 ###########################################################################
 #   package globals
@@ -922,14 +923,16 @@ sub GetQueryList
        $info{record} = defined( $info{record} ) ? lc( $info{record} ) : 'all';
        $info{dynamic} = defined( $info{dynamic} ) ? lc( $info{dynamic} ) : 'all';
 
-    my $curuser = '';                           # current user
-    my $workspc = undef;                        # workspace obj
-    my $querydef = undef;                       # querydef obj
-    my $rectype = undef;                        # record type
+    my $curuser   = '';                         # current user
+    my $workspc   = undef;                      # workspace obj
+    my $querydef  = undef;                      # querydef obj
+    my @allqrys   = ();                         # all the user's queries
+    my $rectype   = undef;                      # record type
     my $resultset = undef;                      # resultset obj
+    my %badqrys   = ();                         # bad queries
     my $promptctr = 0;                          # prompt counter
-    my $rowctr = 0;                             # row counter
-    my @rtn = ();                               # init rtn array
+    my $rowctr    = 0;                          # row counter
+    my @rtn       = ();                         # init rtn array
 
     eval{ $workspc = $session->GetWorkSpace() }; # create workspace object
     return( "unable to create query workspace!" ) if ( $@ );
@@ -941,42 +944,88 @@ sub GetQueryList
         return( "unable to set workspace for '$login'!" ) if ( $@ );
     }
 
-    return( "invalid query type '$info{key}'!" ) if ( !defined( $CqExt::wsqt{$info{key}} ) );
-    eval
-    { 
-                                                # go thru list of queries
-        foreach $query ( sort( @{$workspc->GetQueryList( $CqExt::wsqt{$info{key}} )} ) )
+    return( "invalid query type '$info{key}'!" )
+      if ( !defined( $CqExt::wsqt{$info{key}} ) );
+    eval{ @allqrys = sort( @{$workspc->GetQueryList( $CqExt::wsqt{$info{key}} )} ) };
+    return( 'unable to retrieve query list!' ) if ( $@ );
+    foreach $query ( @allqrys )                 # go thru list of queries
+    {
+        if ( $info{record} ne 'all' )           # if specific record type
         {
-            if ( $info{record} ne 'all' )       # if specific record type
-            {
                                                 # get query definition
-                $querydef = $workspc->GetQueryDef( $query );
+            eval{ $querydef = $workspc->GetQueryDef( $query ) };
+            return( "unable to retrieve definition for query '$query'!" ) if ( $@ );
                                                 # rec type rtn'd by query
-                $rectype = lc( $querydef->GetPrimaryEntityDefName() );
-                next if ( $rectype ne $info{record} );
-            }
-            if ( $info{dynamic} ne 'all' )      # if not/prompted queries only
-            {
-                                                # get query definition
-                $querydef = $workspc->GetQueryDef( $query );
-                                                # build the result set object
-                $resultset = $session->BuildResultSet( $querydef );
-                                                # get number of prompts
-                $promptctr = $resultset->GetNumberOfParams();
-                next if ( ($info{dynamic} eq 'yes' && !$promptctr)
-                          || ($info{dynamic} eq 'no' && $promptctr) );
-            }
-
-            %queryname = ( row     => $rowctr++,
-                           rectype => 'queryname',
-                           name    => $query ); # save query name
-            push( @rtn, {%queryname} );         # add query name & stuff to rtn
+            eval{ $rectype = lc( $querydef->GetPrimaryEntityDefName() ) };
+            return( "unable to determine record type for query '$query'!" ) if ( $@ );
+                                                # skip if q rec type != req type
+            next if ( $rectype ne $info{record} );
         }
-    };
-                                                # if something bad, throw err
-    return( "unable to retrieve query list!" ) if ( $@ );
+        if ( $info{dynamic} ne 'all' )          # if not/prompted queries only
+        {
+                                                # get query definition
+            eval{ $querydef = $workspc->GetQueryDef( $query ) };
+            return( "unable to retrieve definition for query '$query'!" ) if ( $@ );
+                                                # build the result set object
+            eval{ $resultset = $session->BuildResultSet( $querydef ) };
+            # prodd00477427 - <info...> with corrupted queries causes failure
+            if ( $@ )                           # corrupted
+            {
+                $badqrys{$query} = [$@];        # save err msg
+                next;                           # skip this query
+            }
+                                                # get number of prompts
+            eval{ $promptctr = $resultset->GetNumberOfParams() };
+            return( "unable to determine parameters for query '$query'!" ) if ( $@ );
+                                                # skip if q dyn != req dyn
+            next if ( ($info{dynamic} eq 'yes' && !$promptctr)
+                      || ($info{dynamic} eq 'no' && $promptctr) );
+        }
+
+        %queryname = ( row     => $rowctr++,
+                       rectype => 'queryname',
+                       name    => $query ); # save query name
+        push( @rtn, {%queryname} );         # add query name & stuff to rtn
+    }
+
+    MailBadQueries( $session, %badqrys ) if ( %badqrys );
 
     return( '', @rtn );                         # rtn err, query output
+}
+
+
+###########################################################################
+#   NAME: MailBadQueries
+#   DESC: formats a mail message about corrupted queries and sends to
+#         CqSys::PrnBinMailMsg()
+#   ARGS: session object, hash (query=>err)
+#   RTNS: n/a
+###########################################################################
+sub MailBadQueries
+{
+    CqSvr::PrnDbgHdr( @_ ) if ( $debug );       # print debug info if requested
+
+    my $session = shift( @_ );                  # session obj
+    my $login   = $session->GetUserLoginName(); # user's login
+    my $email   = $session->GetUserEmail();     # user's email address
+    my %badqrys = @_;                           # save bad queries
+    my $msgbody = '';                           # init message body
+
+    $msgbody .= "The CQ/XML Interface has detected the following corrupted queries in the 'Personal Queries' folder of '$login'.  These queries will not work with the CQ/XML Interface nor the ClearQuest Web interface.  Delete or edit these queries at your earliest convenience .\n\nFor information on maintaining queries, see the $CqSvr::tuttitle topic '$CqSvr::tuttopic' at:\n  $CqSvr::tuturl\n\nFor information on CQ/XML <info .../> elements, see the $CqSvr::xmltitle topic '$CqSvr::xmltopic' at:\n  $CqSvr::xmlurl\n\nIf you have questions about this error, submit a help request via the $CqSvr::helptitle at:\n  $CqSvr::helpurl\nPlease cut-and-paste this email into the request.\n\n*** CORRUPTED QUERIES ***\n\n";
+
+    foreach $query ( sort( keys( %badqrys ) ) ) # 
+    {
+        $msgbody .= "  $query\n  ";
+        $msgbody .= '-' x length( $query ) . "\n";
+        foreach $errmsg ( @{$badqrys{$query}} )
+        {
+            $errmsg =~ s# at (\w:)?/.* line \d+\.\s*$##;
+            $errmsg =~ s/\n/\n\t/g;
+            $msgbody .= "\t$errmsg\n";
+        }
+        $msgbody .= "\n";
+    }
+    CqSys::PrnBinMailMsg( $msgbody, [$email], $CqSvr::qryerrsubj, 0, 0 );
 }
 
 
@@ -1030,7 +1079,7 @@ sub TestLogin
     my $err = '';                               # init err str
 
                                                 # try to login as user
-    ($err, $tlsession) = CQ::Login( $dbinfo{login}, $dbinfo{password}, $dbinfo{db}, $dbinfo{repo}, 1, 1 );
+    ($err, $tlsession) = Login( $dbinfo{login}, $dbinfo{password}, $dbinfo{db}, $dbinfo{repo}, 1, 1 );
     CQ::Logout( $tlsession );                   # logout the tmp session
 
     return( $err, "login as '$dbinfo{login}' successful" );                 # rtn err, success msg
@@ -1063,5 +1112,47 @@ sub RawSql
 
     return( $err, @rtn );                       # return query output
 }
+
+
+###########################################################################
+#   NAME: SystemWait
+#   DESC: puts the server in a wait state, where nothing is processed
+#   ARGS: session obj
+#   RTNS: error status
+###########################################################################
+sub SystemWait
+{
+    CqSvr::PrnDbgHdr( @_ ) if ( $debug );       # print debug info if requested
+
+    my $session = $_[0];                        # session obj
+    my $cqtan   = $_[1];                        # cq tan of cmd
+    my $waitmsg = $_[2];                        # wait msg
+    my @date    = (gmtime( time() ))[5,7];      # year & day of yr
+                                                # yyddd
+    my $datestr = sprintf( "%02d%03ds", $date[0]-100, $date[1] );
+    my $sprusr  = undef;                        # super user?
+    
+                                                # is user super-user?
+    eval{ $sprusr = $session->IsUserSuperUser() };
+    return( "unable to determine user credentials! ($@)" ) if ( $@ );
+    if ( !$sprusr )                             # if ! super user
+    {
+                                                # throw warning back
+        eval { $sprusr = $session->GetUserLoginName() };
+        return( "login '$sprusr' does not have permissions to issue the 'syswait' command!" );
+    }
+                                                # user is super, open wait file
+    if ( open( SSD, ">$CqSvr::fulllogdir/$CqSvr::swfile$cqtan" ) )
+    {
+        print( SSD keys( %{$waitmsg} ) );       # prn passed message to file
+        close( SSD );
+        return( "message written to '$CqSvr::logdir/$CqSvr::swfile$cqtan'." );
+    }
+    else                                        # open failed
+    {
+        return( "unable to write syswait file!" );
+    }
+}
+
 
 1;
