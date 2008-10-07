@@ -161,6 +161,13 @@ The following table lists all of the files in CQ/XML Interface.  The files in th
   </td>
 </tr>
 <tr>
+  <th>support/cqxi_logmaint.pl</th>
+  <td>
+    removes older output/live log files, checks the number of incoming requests for the day
+    <li>on a CQ/XML server this sits at the same level as the server code itself</li>
+  </td>
+</tr>
+<tr>
   <th>support/crontab.txt</th>
   <td>our crontab setup</td>
 </tr>
@@ -181,6 +188,13 @@ The following table lists all of the files in CQ/XML Interface.  The files in th
 <tr>
   <th>support/missingCqTans.pl</th>
   <td>finds missing <code>cqtan</code> numbers</td>
+</tr>
+<tr>
+  <th>support/prndbghdr.pm</th>
+  <td>
+    only contains the function <code>PrnDbgHdr()</code> so scripts don't have to require <code>cqsvrfuncs.pm</code>
+    <li>on a CQ/XML server this sits at the same level as the server code itself</li>
+  </td>
 </tr>
 <tr>
   <th>support/secCXinst.sh</th>
