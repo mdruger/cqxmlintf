@@ -24,7 +24,7 @@
 DESTDIR='//indshare/cqxmlintf/release'
 SVRAPPS='cqxi_live.pl cqxi_queued.pl'
 SVRINC='cqext.pm cqextvars.pm cqsvrfuncs.pm cqsvrvars.pm cqxml.pm cqflds.pm cqsys.pm'
-SUPPORT='support/clnTmp2PubLogs.pl support/cprls2svr.pl support/cqxi_chklive.pl support/crontab.txt support/secCXinst.sh'
+SUPPORT='support/clnTmp2PubLogs.pl support/cprls2svr.pl support/cqxi_chklive.pl support/crontab.txt support/secCXinst.sh support/cqxi_logmaint.pl support/prndbghdr.pm'
 
 ###########################################################################
 #   script globals
