@@ -1,21 +1,31 @@
 <html>
 <head>
-<title>Generating Monthly Statistics</title>
+<title>Generating Statistics</title>
 <link rel='stylesheet' type='text/css' href='admin.css' />
-<link rel='shortcut icon' href='pics/date.png' />
+<link rel='shortcut icon' href='pics/chart_curve.png' />
 </head>
 
 <body>
 <table class='hdr'>
 <tr>
   <td><a href='admin.html'>&#171; CQ/XML Admin Docs</a></td>
-  <th>Generating Monthly Statistics</th>
+  <th>Generating Statistics</th>
   <td align='right'><b>Updated:</b> <script>document.write( document.lastModified );</script></td>
 </tr>
 </table>
 
 <p>
-Creating the monthly statistics requires very little effort.  Navigate into the source repository and cd down into the <code>support</code> directory.  From there you should be able to see the file <code>xmlstats.pl</code>.  Running this file without arguments will force the script to run, logging activity from the last 30 days to standard-out (<code>STDOUT</code>).
+We regularly generate two types of statistics.  The first, is a web page that records daily usage of the server.  The script that generates the web page also clears out older live/output log files to free up disk space.  The second classification of statistic is a detailed monthly report that contains information about users per day, unique users, etcetera.
+</p>
+
+<h3>Daily Usage Statistics</h3>
+<p>
+The script <code>cqxi_logmaint.pl</code> will count the number of requests from the previous day and record its findings on a web page.  (The web page is located in the public log directory.)  Additionally, <code>cqxi_logmaint.pl</code> will also remove any live/output log files from 10 days ago.  We have found that beyond that point, the live log files are not used but removing those files can free a substantial amount of disk space.  To get optimal use of <code>cqxi_logmaint.pl</code> it is best to schedule it run every day.  The source repository file <code>support/crontab.txt</code> shows how this script is setup in our production environment.
+</p>
+
+<h3>Detailed Monthly Statistics</h3>
+<p>
+Creating the detailed monthly statistics requires very little effort.  Navigate into the source repository and cd down into the <code>support</code> directory.  From there you should be able to see the file <code>xmlstats.pl</code>.  Running this file without arguments will force the script to run, logging activity from the last 30 days to standard-out (<code>STDOUT</code>).
 </p>
 <p>
 That's it!  However it's more useful to redirect the output to a file.  Specifying the <code>-o</code> option with a filename will save the output to that file.  In the past I have been saving all the files into <code>../docs/logs/[yy][mm]xmlusg.log</code>, where <code>[yy]</code> is the 2-digit year and <code>[mm]</code> is the 2-digit month.
@@ -29,9 +39,9 @@ Once <code>xmlstats.pl</code> completes execution you may need to modify the sum
 <p>
 Remember to check-in the log file when you're done.
 </p>
-<h3>Sample</h3>
+<h3>Detailed Monthly Statistics - Sample</h3>
 <pre>
-  $ cd .../src/support
+  $ cd .../src//support
   $ xmlstats.pl -o ../docs/logs/0711xmlusg.log
   Searching logs from the last 30 days...
   From '07333' to '07303': 30 files found
