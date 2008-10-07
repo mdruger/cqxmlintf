@@ -68,6 +68,7 @@ local @time = (gmtime( $epoch ))[5,7];          # save yr & yr-day
 local $yrday = sprintf( "%02d%03d", $time[0]-100, $time[1] );
 local $logfh = undef;                           # log filehandle ref
 local @qfiles = ();                             # queue files
+local %qfdates = ();                            # queue file dates
 local $publogdir = $CqSvr::publogdir;           # save pkg pub log prefix
 local $permchk = 1;                             # permissions enabled by default
 local $syserrs = '';                            # errs from CqSys pkg
@@ -84,11 +85,6 @@ if ( !$CqSvr::osiswin )                         # lots of UNIX stuff coming up
 {
                                                 # chk if more queue mgrs running
     ($syserrs, %procs) = CqSys::FindSvrProcs( "$CqSvr::queuename", 0 );
-    if ( @{$syserrs} )                          # if errs rtn'd
-    {
-        map( s/^(.*)$/$errhdr $1\n/, @{$errs} ); # slam errhdr on front of errs
-        die( "$errhdr unable to determine status of existing processes!", join( '', @{$errs} ) );
-    }
                                                 # find matching svr
     @pids = CqSys::MatchSvrArgs( $runnum, $multisys, %procs );
     $curpid = $$;                               # perl spews on 3 $'s in next RE
@@ -102,19 +98,28 @@ if ( !$CqSvr::osiswin )                         # lots of UNIX stuff coming up
         }
         exit( 0 );                              # stop here
     }
+    elsif ( @{$syserrs} )                       # if errs rtn'd
+    {
+                                                # slam errhdr on front of errs
+        #map( s/^(.*)$/$errhdr $1\n/, @{$syserrs} );
+        die( "$errhdr unable to determine status of existing processes!\n$errspc", join( "\n$errspc", @{$syserrs} ), "\n" );
+    }
 }
 
 die( "$exitval\n" ) if ( $exitval = CqSvr::MkDirTree( "$logdir/$CqSvr::arcdir/$yrday" ) );
                                                 # make pub log dir
 die( $exitval ) if ( $exitval = CqSvr::MkDirTree( $publogdir ) );
 $CqSvr::sysmsg = CqSvr::ReadSysMsg();           # read system status message
-                                                # open logfile save fh ref
-$logfh = CqSvr::OpenLog( "$publogdir/${CqSvr::filepre}_q${yrday}.xml", $quiet );
-                                                # prn "started" to log file
-CqSvr::Log2Xml( $logfh, "svr$epoch", {date => CqSvr::ShortDateNTime(), status => 'started', pid => $$}, '', 'NOCLOSE' );
-                                                # if queue files waiting
-if ( @qfiles = <$logdir/${CqSvr::qfile}[0-9][0-9][0-3][0-9][0-9][ns][0-9][0-9][0-9][0-9][0-9][0-9]> )
+@qfiles = <$logdir/${CqSvr::qfile}[0-9][0-9][0-3][0-9][0-9][ns][0-9][0-9][0-9][0-9][0-9][0-9]>;
+                                                # create list of uniq dates
+grep( $qfdates{$_}++, map { /$CqSvr::qfile(\d{5})\D\d{6}$/ ? $1 : () } @qfiles );
+foreach $qdate ( keys( %qfdates ) )             # go thru files by date
 {
+                                                # open logfile save fh ref
+    $logfh = CqSvr::OpenLog( "$publogdir/${CqSvr::filepre}_q${qdate}.xml", $quiet );
+                                                # prn "started" to log file
+    CqSvr::Log2Xml( $logfh, "svr$epoch", {date => CqSvr::ShortDateNTime(), status => 'started', pid => $$}, '', 'NOCLOSE' );
+                                                # if queue files waiting
     if ( @syswait = CqSvr::ChkSysWait() )       # check if sys wait file around
     {
                                                 # overwrite <svr>'s '\n' on Win
@@ -127,17 +132,22 @@ if ( @qfiles = <$logdir/${CqSvr::qfile}[0-9][0-9][0-3][0-9][0-9][ns][0-9][0-9][0
                                                 # read ip mod perms unless skip
         %CqSvr::modperms = CqSvr::ReadIpModPerms() if ( $permchk );
         %CqSvr::enckeys = CqSvr::ReadEncKeys(); # read pswd encryption keys
-        ProcessQueued( @qfiles );               # process the queued file
+        #ProcessQueued( @qfiles );               # process the queued files
+        ProcessQueued( $qdate, grep( /$CqSvr::qfile$qdate/, @qfiles ) );
     }
+    CloseQueueLog( $logfh );                    # close the queue log file
 }
-else                                            # no files waiting
+
+if ( !@qfiles )                                 # no files waiting
 {
+                                                # open logfile save fh ref
+    $logfh = CqSvr::OpenLog( "$publogdir/${CqSvr::filepre}_q${yrday}.xml", $quiet );
+                                                # prn "started" to log file
+    CqSvr::Log2Xml( $logfh, "svr$epoch", {date => CqSvr::ShortDateNTime(), status => 'started', pid => $$}, '', 'NOCLOSE' );
     seek( $logfh, -1, 2 ) if $CqSvr::osiswin;   # overwrite <svr>'s '\n' on Win
     print( $logfh "queue empty" );              # prn "empty" status
+    CloseQueueLog( $logfh );                    # close the queue log file
 }
-print( $logfh "</svr$epoch>\n" );               # close server element
-print( $logfh "</$CqSvr::rootelem>" );          # prn root elem close to log
-close( $logfh );                                # close log file
 RecordLiveLog ( <$logdir/${CqSvr::lfile}[0-9][0-9][0-3][0-9][0-9][ns][0-9][0-9][0-9][0-9][0-9][0-9]> ) if ( !@syswait );
 
 
@@ -223,13 +233,14 @@ sub ParseCmd
 ###########################################################################
 #   NAME: ProcessQueued
 #   DESC: opens queued files & sends contents to get worked on
-#   ARGS: filelist
+#   ARGS: file date, filelist
 #   RTNS: n/a
 ###########################################################################
 sub ProcessQueued
 {
     CqSvr::PrnDbgHdr( @_ ) if ( $debug );       # print debug info if requested
 
+    my $date  = shift( @_ );                    # date of the files
     my @files = @_;                             # list of files to read
     my $cqtan = '';                             # init cqtan
 
@@ -244,13 +255,15 @@ sub ProcessQueued
             ReadCmd( $cqtan, join( '', <XML> ) );
             close( XML );                       # close xml file
             $file =~ m#($CqSvr::qfile$cqtan)$#; # get file leaf name
+            CqSvr::MkDirTree( "$logdir/$CqSvr::arcdir/$date" )
+              if ( !-d "$logdir/$CqSvr::arcdir/$date" );
                                                 # move file to archive dir
-            rename( "$file", "$logdir/$CqSvr::arcdir/$yrday/$1" );
+            rename( "$file", "$logdir/$CqSvr::arcdir/$date/$1" );
         }
         else                                    # open failed
         {
                                                 # record err
-            CqSvr::Log2Xml( $logfh, $cqtan, {status => 'error'}, "unable to read '$cqtan'" );
+            CqSvr::Log2Xml( $main::logfh, $cqtan, {status => 'error'}, "unable to read '$cqtan'" );
             warn( "$errhdr unable to read queued file '$file'!\n" );
             next;                               # skip this file
         }
@@ -280,7 +293,7 @@ sub ReadCmd
                                                 # special case: q-svr running 2x
     if ( $cmd !~ /^<$CqSvr::rootelem>/ && $cmd =~ /<svr\d+/ )
     {
-        print( $logfh $cmd );                   # prn other queue svr message
+        print( $main::logfh $cmd );             # prn other queue svr message
         return();                               # we're finished in here
     }
 
@@ -298,7 +311,7 @@ sub ReadCmd
     if ( $@ || !%xmlhash || !%cqcommhash )      # if the parser failed
     {
                                                 # log err & send email
-        LogNSendErr( $logfh, $cqtan, $cmd, $xmlhash{db}, $xmlhash{login}, $cqcommhash{client}, $cqcommhash{ip}, 'unable to parse XML', 'error', $xmlhash{'email-fail'} );
+        LogNSendErr( $main::logfh, $cqtan, $cmd, $xmlhash{db}, $xmlhash{login}, $cqcommhash{client}, $cqcommhash{ip}, 'unable to parse XML', 'error', $xmlhash{'email-fail'} );
         return();                               # get out'a here
     }
                                                 # break xml into exec cmds
@@ -306,11 +319,11 @@ sub ReadCmd
     if ( $err )                                 # if err breaking xml
     {
                                                 # log err & send email
-        LogNSendErr( $logfh, $cqtan, $cmd, $xmlhash{db}, $xmlhash{login}, $cqcommhash{client}, $cqcommhash{ip}, $err, 'error', $xmlhash{'email-fail'} );
+        LogNSendErr( $main::logfh, $cqtan, $cmd, $xmlhash{db}, $xmlhash{login}, $cqcommhash{client}, $cqcommhash{ip}, $err, 'error', $xmlhash{'email-fail'} );
     }
     elsif ( $#xmlrtn <= 0 )                     # if no queued actions in xml
     {
-        CqSvr::Log2Xml( $logfh, $cqtan, {db => $xmlhash{db}, login => $xmlhash{login}, client => $cqcommhash{client}, ip => $cqcommhash{ip}, status => 'skipped'}, 'no queued actions found' );
+        CqSvr::Log2Xml( $main::logfh, $cqtan, {db => $xmlhash{db}, login => $xmlhash{login}, client => $cqcommhash{client}, ip => $cqcommhash{ip}, status => 'skipped'}, 'no queued actions found' );
     }
     else                                        # found some queued actions
     {
@@ -319,11 +332,11 @@ sub ReadCmd
                                                 # write status to log file
         if ( $err )                             # if >0 errs
         {
-            LogNSendErr( $logfh, $cqtan, $cmd, $xmlhash{db}, $xmlhash{login}, $cqcommhash{client}, $cqcommhash{ip}, $xmlrtnstr, 'processed', $xmlhash{'email-fail'} );
+            LogNSendErr( $main::logfh, $cqtan, $cmd, $xmlhash{db}, $xmlhash{login}, $cqcommhash{client}, $cqcommhash{ip}, $xmlrtnstr, 'processed', $xmlhash{'email-fail'} );
         }
         else                                    # no errors
         {
-            CqSvr::Log2Xml( $logfh, $cqtan, {db => $xmlhash{db}, login => $xmlhash{login}, client => $cqcommhash{client}, ip => $cqcommhash{ip}, status => 'processed'}, "\n$xmlrtnstr" );
+            CqSvr::Log2Xml( $main::logfh, $cqtan, {db => $xmlhash{db}, login => $xmlhash{login}, client => $cqcommhash{client}, ip => $cqcommhash{ip}, status => 'processed'}, "\n$xmlrtnstr" );
         }
     }
 }
@@ -371,6 +384,24 @@ sub LogNSendErr
 
 
 ###########################################################################
+#   NAME: CloseQueueLog
+#   DESC: closes the queue log file
+#   ARGS: log filehandle
+#   RTNS: n/a
+###########################################################################
+sub CloseQueueLog
+{
+    CqSvr::PrnDbgHdr( @_ ) if ( $debug );       # print debug info if requested
+
+    my $logfh = $_[0];                          # save log filehandle
+
+    print( $logfh "</svr$epoch>\n" );           # close server element
+    print( $logfh "</$CqSvr::rootelem>" );      # prn root elem close to log
+    close( $logfh );                            # close log file
+}
+
+
+###########################################################################
 #   NAME: RecordLiveLog
 #   DESC: takes all the live logs and joins them in a public log
 #   ARGS: live log files
@@ -380,34 +411,41 @@ sub RecordLiveLog
 {
     CqSvr::PrnDbgHdr( @_ ) if ( $debug );       # print debug info if requested
 
-    my @files = @_;                             # save file list
-    my $llogfh = undef;                         # live log filehandle
+    my @files   = @_;                           # save file list
+    my %lfdates = ();                           # live file unique dates
+    my $llogfh  = undef;                        # live log filehandle
 
     if ( @files )                               # if files to process
     {
-                                                # open public live log
-        $llogfh = CqSvr::OpenLog( "$publogdir/${CqSvr::filepre}_l${yrday}.xml", $quiet );
-                                                # go thru live log files
-        foreach $file ( SortFilesByModDate( @files ) )
+        grep( $lfdates{$_}++, map { /$CqSvr::lfile(\d{5})\D\d{6}$/ ? $1 : () } @files );
+        foreach $ldate ( keys( %lfdates ) )     # go thru files by date
         {
-            if ( open( LIVEXML, "<$file" ) )    # if private live log open ok
+                                                # open public live log
+            $llogfh = CqSvr::OpenLog( "$publogdir/${CqSvr::filepre}_l${ldate}.xml", $quiet );
+                                                # go thru live log files
+            #foreach $file ( SortFilesByModDate( @files ) )
+            foreach $file ( SortFilesByModDate( grep( /$CqSvr::lfile$ldate/, @files ) ) )
             {
-                print( $llogfh <LIVEXML> );     # print private log to pub log
-                close( LIVEXML );               # close private log
+                if ( open( LIVEXML, "<$file" ) ) # if private live log open ok
+                {
+                    print( $llogfh <LIVEXML> ); # print private log to pub log
+                    close( LIVEXML );           # close private log
                                                 # parse leaf name
-                $file =~ m#($CqSvr::lfile[^\\/]+)$#;
+                    $file =~ m#($CqSvr::lfile[^\\/]+)$#;
                                                 # rename file to archive
-                rename( "$file", "$logdir/$CqSvr::arcdir/$yrday/$1" );
-            }
-            else                                # open failed
-            {
+                    rename( "$file", "$logdir/$CqSvr::arcdir/$ldate/$1" );
+                }
+                else                            # open failed
+                {
                                                 # save error to public log
-                CqSvr::Log2Xml( $llogfh, "svr$epoch", {date => CqSvr::ShortDateNTime(), status => 'error', pid => $$}, "unable to read live log '$file'!" );
-                warn( "$errhdr unable to read live log file '$file'!\n" );
+                    CqSvr::Log2Xml( $llogfh, "svr$epoch", {date => CqSvr::ShortDateNTime(), status => 'error', pid => $$}, "unable to read live log '$file'!" );
+                    warn( "$errhdr unable to read live log file '$file'!\n" );
+                }
             }
+                                                # append closing root elem
+            print( $llogfh "</$CqSvr::rootelem>" );
+            close( $llogfh );                   # close public log
         }
-        print( $llogfh "</$CqSvr::rootelem>" ); # append closing root elem
-        close( $llogfh );                       # close public log
     }
 }
 
