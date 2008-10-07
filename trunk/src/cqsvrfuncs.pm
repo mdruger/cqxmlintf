@@ -63,8 +63,19 @@ sub MkDirTree
     PrnDbgHdr( @_ ) if ( $debug );              # print debug info if requested
 
     my $destdir = $_[0];                        # save dir name
-    my $newdir = $destdir =~ m#^/# ? '' : '.';  # if full dir, nothing, else '.'
+    my $newdir =  '.';                          # default = current dir
     my $rtn = 0;                                # default return = ok
+
+                                                # if windows & full path
+    if ( $CqSvr::osiswin && $destdir =~ m#^(\w:)(.*)$# )
+    {
+        $newdir = $1; $destdir = $2;            # save drive & rest of path
+    }
+                                                # not windows & full path
+    elsif ( !$CqSvr::osiswin && $destdir =~ m#^/# )
+    {
+        $newdir = '';                           # don't start in cur dir
+    }
 
     if ( ! -d "$destdir" )                      # if dest dir doesn't exist
     {
@@ -368,13 +379,13 @@ sub Decrypt
     my $rtn     = '';                           # init rtn pswd
 
                                                 # if ip is mapped
-    if ( defined( $CqSvr::enckeys{$ip} ) )
+    if ( $ip && defined( $CqSvr::enckeys{$ip} ) )
     {
                                                 # use ip key to decrypt pswd
         $rtn = RC4( $CqSvr::enckeys{$ip}, $pswd );
     }
                                                 # if ip !mapped, login mapped
-    elsif ( defined( $CqSvr::enckeys{$login} ) )
+    elsif ( $login && defined( $CqSvr::enckeys{$login} ) )
     {
                                                 # use login key to decrypt pswd
         $rtn = RC4( $CqSvr::enckeys{$login}, $pswd );
@@ -405,7 +416,9 @@ sub Log2Xml
     print( "<$elem" );                          # start elem
     foreach $atrb ( sort( keys( %atrbs ) ) )    # go thru attributes
     {
-        print( " $atrb='$atrbs{$atrb}'" );      # prn attribute & value
+        print( defined( $atrbs{$atrb} )         # if attribute has value
+               ? " $atrb='$atrbs{$atrb}'"       # print attribute & value
+               : " $atrb='$CqSvr::noatrbstr'" ); # else print attribute w/ warn
     }
 
     if ( $closeopt )                            # if closing disabled
