@@ -21,6 +21,6 @@
 ###########################################################################
 
 print( "\nPerl's day of the year:\n" );
-printf( "  GMT:   %03d\n", (gmtime( time() ))[7] );
-printf( "  Local: %03d\n", (localtime( time() ))[7] );
+printf( "  GMT:   %03d - %s\n", (gmtime( time() ))[7], scalar( gmtime( time() ) ) );
+printf( "  Local: %03d - %s\n", (localtime( time() ))[7], scalar( localtime( time() ) ) );
 print( "\n" );
