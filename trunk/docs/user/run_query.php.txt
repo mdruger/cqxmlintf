@@ -1,0 +1,92 @@
+<?php
+
+/**************************************************************************
+*  NAME: run_query.php
+*  DESC: This scripts shows how to open a socket to the ClearQuest Server
+*        in PHP and run the Public Query/All Defects.
+*  Copyright (C) Mentor Graphics Corporation 2007 All Rights Reserved
+**************************************************************************/
+
+error_reporting(E_ALL);
+
+/**************************************************************************
+*  Globals 
+**************************************************************************/
+                                                // XML string that runs query
+$xmlstr="<?xml version='1.0'?>
+<ClearQuest login='cq_user' password='password' db='pract' repo='practice'>
+<query name='Public Queries/All Defects' wait='yes'>
+<prompt1>Defect</prompt1>
+<prompt2>IT</prompt2>
+<prompt3>ClearQuest</prompt3>
+<prompt8>cqusr4</prompt8>
+</query>
+</ClearQuest>";
+$eof = '</ClearQuest>';                         // end of data tag
+$server="cqtestxml.sitedomain.com";      // CQ server    
+$port="5556";                                   // CQ server listening Port
+$protocoltype = 'tcp';                          // Protocol Tyue
+$address = gethostbyname($server);              // CQ Address
+
+/**************************************************************************
+*  Create Protocol
+**************************************************************************/
+$protocol = getprotobyname($protocoltype);
+if ($protocol == -1) {
+    echo 'Invalid Protocol\n';
+} else {
+    echo 'Protocol #' . $protocol . "\n";
+}
+
+
+/**************************************************************************
+*  Create Socket
+**************************************************************************/
+$sock = socket_create(AF_INET, SOCK_STREAM, $protocol);
+if ($sock === false) 
+{
+  echo "socket_create() failed: reason: " . socket_strerror(socket_last_error()) . "\n";
+} 
+else 
+{
+  echo "socket_create() success.\n";
+}
+
+/**************************************************************************
+*  Connect to Socket
+**************************************************************************/
+echo "Attempting to connect to CQ XML server\n";
+if (socket_connect($sock, $address, $port) === false) 
+{
+    echo "socket_connect() failed: reason: " . socket_strerror(socket_last_error($sock)) . "\n";
+}
+
+/**************************************************************************
+*  Write to Socket
+**************************************************************************/
+echo "Attempting to write to socket\n";
+if (socket_write($sock,$xmlstr, strlen($xmlstr)) === false) 
+{
+    echo "socket_write() failed: reason: " . socket_strerror(socket_last_error($sock)) . "\n";
+}
+
+/**************************************************************************
+*  Reading from Socket
+**************************************************************************/
+echo "Attempting to read from socket\n";
+while ($out = socket_read($sock, 666666))
+{
+    echo "$out\n";
+    if ($out == $eof)
+    {
+        break;
+    }
+}
+
+/**************************************************************************
+*  Close Socket
+**************************************************************************/
+socket_close($sock);
+
+exit;
+?>
