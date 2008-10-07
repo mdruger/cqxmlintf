@@ -43,6 +43,7 @@ $publogtop  = $osiswin                          # if on Win, use local dir
 $publogdir  = "$publogtop/cqxmllogs";           # pub log dir
 $fulllogdir = "$main::cmddir/$logdir";          # full path to log dir
 $ipqfile    = "$filepre.ipq_";                  # In Progress Queue file prefix
+$ipqerrfile = "$filepre.iel_00000s000000";      # IPQ err log file
 $swfile     = "$filepre.sw_";                   # System Wait file prefix
 $qfile      = "$filepre.q_";                    # Queue file prefix
 $lfile      = "$filepre.l_";                    # Live log prefix file
@@ -52,6 +53,17 @@ $cqtanlog   = "${qfile}cqtan";                  # cqtan log
 $encryptxml = "$main::cmddir/data/enckeys.xml"; # the encryption keys
 $recmodxml  = "$main::cmddir/data/recmod.xml";  # record mod by ip
 $sysmsgtxt  = "$main::cmddir/data/sysmsg.txt";  # system status message
+
+### log maintenance #######################################################
+$statusfile = "$publogdir/status";              # maintenance status file
+$statusext  = '.html';
+$logtblhdr  = 'cqtan.*cal.*reqs.*notes';        # 
+$logupdstr  = '<b>Updated:</b>';
+$loglinestr = "(<tr[^>]*><td>(\\d{5})</td><td>(\\d\\d/\\d\\d)</td><td class='reqs'>(\\d+)</td>)<td[^>]*>(.*)</td></tr>";
+
+### ipq checks ############################################################
+$chkfreq    = 11*60;                            # check for files > 11min
+$chkwarn    = 60*60;
 
 ### file attributes & contents ############################################
 %filestat = ();                                 # file 'stat's
@@ -84,6 +96,8 @@ $waitnondef = 'yes';                            # wait non-default behavior
 ### attributes ############################################################
                                                 # <ClearQuest> attributes
 @cqatrbs    = qw( login password encrypted db repo cqtan email-fail );
+$noatrbstr  = 'UNKNOWN';                        # no attribute warn/err str
+
                                                 # record attribute defaults
 %recatrbdef = ( component => {action => 'view'},
                 defect    => {action => 'view'},
