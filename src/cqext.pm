@@ -512,8 +512,8 @@ sub Query
     CqSvr::PrnDbgHdr( @_ ) if ( $debug );       # print debug info if requested
 
     my $session = shift( @_ );                  # session object
-    my $login = shift( @_ );                    # user login
-    my $query = shift( @_ );                    # query name
+    my $login   = shift( @_ );                  # user login
+    my $query   = shift( @_ );                  # query name
     my %filters = @_;                           # query prompted filters/logic
 
     my $err       = '';                         # init err rtn str
@@ -533,7 +533,7 @@ sub Query
     ($err, $resultset) = FixQueryCurUsr( $query, $session, $querydef, $resultset, $login );
     return( $err ) if ( $err );
                                                 # gen query output & save
-    ($err, @rtn) = QueryOutput( $query, $resultset );
+    ($err, @rtn) = QueryOutput( $query, $resultset, $querydef );
     return( $err ) if ( $err );
 
     return( $err, @rtn );                       # return query output
@@ -744,6 +744,8 @@ sub FixDate
 ###########################################################################
 sub FixQueryCurUsr
 {
+    CqSvr::PrnDbgHdr( @_ ) if ( $debug );       # print debug info if requested
+
     my $query     = $_[0];                      # query name
     my $session   = $_[1];                      # session obj
     my $querydef  = $_[2];                      # querydef obj
@@ -846,23 +848,26 @@ sub FixQueryCurUsr
 ###########################################################################
 #   NAME: QueryOutput
 #   DESC: dumps the query output
-#   ARGS: query name, resultset obj
+#   ARGS: query name, resultset obj, (querydef obj)
 #   RTNS: err, array of hashes of query rtn
 ###########################################################################
 sub QueryOutput
 {
+    CqSvr::PrnDbgHdr( @_ ) if ( $debug );       # print debug info if requested
+
     my $query     = $_[0];                      # query name
     my $resultset = $_[1];                      # resultset obj
+                                                # if querydef passed, use it
+    my $querydef  = defined( $_[2] ) ? $_[2] : 0;
 
     my $qryerrstr = $query ? "query '$query'" : 'sql query';
-    my $rectype = '';                           # record type
-    my $colctr = 0;                             # column counter
-    my $qstatus = undef;                        # query move next status
-    my %queryrec = ();                          # query rtn'd record tmp hash
-    my $rowctr = 0;                             # row counter
-    my $colname = '';                           # column name
-    my $colnamectr = 0;                         # number as column name
-    my @rtn = ();                               # init return array
+    my $rectype   = '';                         # record type
+    my $colctr    = 0;                          # column counter
+    my $qstatus   = undef;                      # query move next status
+    my @colprops  = ();
+    my %queryrec  = ();                         # query rtn'd record tmp hash
+    my $rowctr    = 0;                          # row counter
+    my @rtn       = ();                         # init return array
 
     if ( $query )                               # if CQ query
     {
@@ -882,19 +887,22 @@ sub QueryOutput
                                                 # how many cols in output?
         $colctr = $resultset->GetNumberOfColumns();
         $qstatus = $resultset->MoveNext();      # go to 1st val
+                                                # get col label & type
+        @colprops = GetColProps( $query, $colctr, $resultset, $querydef );
                                                 # while finding records
         while ( $qstatus == $CQPerlExt::CQ_SUCCESS )
         {
-            %queryrec = ( row => $rowctr++,     # re-init w/ row counter
+            %queryrec = ( row     => $rowctr++, # re-init w/ row counter
                           rectype => $rectype );
-            $colnamectr = 0;                    # re-init num as col name
             for ( my $i=1; $i<=$colctr; $i++ )  # go thru record columns
             {
-                                                # get column label
-                $colname = $resultset->GetColumnLabel( $i );
-                $colname = 'column' . $colnamectr++ if ( !$query && ! $colname );
                                                 # get column value
-                $queryrec{$colname} = $resultset->GetColumnValue( $i );
+                $queryrec{${$colprops[$i]}{label}} = $resultset->GetColumnValue( $i );
+                                                # if null multi-key ref-list fix
+                $queryrec{${$colprops[$i]}{label}} = ''
+                  if ( $querydef
+                       && ${$colprops[$i]}{type} == $CQPerlExt::CQ_REFERENCE_LIST
+                       && $queryrec{${$colprops[$i]}{label}} =~ /^\s+$/ );
             }
             push( @rtn, {%queryrec} );          # add record to return array
             $qstatus = $resultset->MoveNext();  # get next record
@@ -904,6 +912,41 @@ sub QueryOutput
     return( "invalid results from $qryerrstr!" ) if ( $@ );
 
     return( '', @rtn );                         # rtn err, query output
+}
+
+
+###########################################################################
+#   NAME: GetColProps
+#   DESC: column properties for the query
+#   ARGS: query name, num of cols, resultset obj (already exec'd), querydef obj
+#   RTNS: array of hashes [{label,type},]
+###########################################################################
+sub GetColProps
+{
+    CqSvr::PrnDbgHdr( @_ ) if ( $debug );       # print debug info if requested
+
+    my $query     = $_[0];                      # query name
+    my $colctr    = $_[1];                      # num of cols in query
+    my $resultset = $_[2];                      # resultset obj (already exec'd)
+    my $querydef  = $_[3];                      # querydef obj
+    my @rtn       = ( 0 );                      # init rtn array (w/ val in [0])
+
+    eval
+    {
+        for ( my $i=1; $i<=$colctr; $i++ )      # loop thru cols
+        {
+                                                # get col label
+            $rtn[$i] = { label => $resultset->GetColumnLabel( $i ),
+                         type  => $querydef     # if querydef passed
+                                                #   get field type
+                                  ? $querydef->GetFieldByPosition( $i )->GetFieldType()
+                                  : 'sql',      #   just dump in 'sql'
+                       };
+                                                # if no label, make fake one
+            ${$rtn[$i]}{label} = "column$i" if ( !$query && ! ${$rtn[$i]}{label} );
+        }
+    };
+    return( @rtn );                             # rtn [{label,type},]
 }
 
 
@@ -1104,7 +1147,7 @@ sub RawSql
     my @rtn       = ();                         # init rtn array
 
                                                 # define query via raw sql
-    eval{ $resultset = $session->BuildSQLQuery( $sql ) };
+    eval{ $resultset = $session->BuildSQLQuery( CqXml::FixXmlEnts( $sql, 1 ) ) };
     return( "unable to create sql query! ($@)" ) if ( $@ );
                                                 # get query output & save
     ($err, @rtn) = QueryOutput( '', $resultset );
