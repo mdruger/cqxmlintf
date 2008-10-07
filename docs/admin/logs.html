@@ -74,7 +74,7 @@ If a user reports a problem you can use either the public logs or the IPQ files 
 If you need more information than the public logs provide, you can always review the IPQ files.  Since they have connection information embedded in them, they provide a little more information for diagnosing problems.  Additionally, since they are individual files they may be easier to search depending on the tools you use to search.
 </p>
 <p>
-The logs can also be used to generate metrics for the CQ/XML Interface.  We use the script <code>support/xmlstats.pl</code> to parse the public logs and generate monthly usage statistics.
+The logs can also be used to generate metrics for the CQ/XML Interface.  We use the script <code>[instdir]/cqxi_logmaint.pl</code> to monitor the incoming number of requests based on the logs.  This helps us identify unusual usage patterns before it affects other users.  We also use the script <code>support/xmlstats.pl</code> to parse the public logs and generate monthly usage statistics.
 </p>
 
 <h3>Oddities</h3>
