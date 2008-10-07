@@ -46,7 +46,7 @@ $SIG{INT} = \&CtrlC;                            # catch ^C
 autoflush STDOUT 1;                             # don't buffer STDOUT
 autoflush STDERR 1;                             # don't buffer STDERR
                                                 # prevent warnings on 1-use vars
-my @tmp = ( $CqSvr::recuk, $CqSvr::rtnleadspc, $CqSvr::atrbkey, $CqSvr::tcpproto, $CqSvr::commroot, $CqSvr::filepre, $CqSvr::port, $CqSvr::logdir, $CqXml::debug, $CQ::debug, $CqSvr::debug, %CqSvr::modperms, %CqSvr::enckeys, ); @tmp = ();
+my @tmp = ( $CqSvr::recuk, $CqSvr::rtnleadspc, $CqSvr::atrbkey, $CqSvr::tcpproto, $CqSvr::commroot, $CqSvr::filepre, $CqSvr::port, $CqSvr::logdir, $CqXml::debug, $CQ::debug, $CqSvr::debug, %CqSvr::modperms, %CqSvr::enckeys, $CqSvr::noatrbstr, ); @tmp = ();
 
 ###########################################################################
 #   globals
@@ -84,6 +84,9 @@ socket( SSOCKET, PF_INET, SOCK_STREAM, $CqSvr::tcpproto )
                                                 # allow bind to port in use
 setsockopt( SSOCKET, SOL_SOCKET, SO_REUSEADDR, 1 )
     or die( "setsockopt: $!" );
+                                                # try keeping port open longer
+setsockopt( SSOCKET, SOL_SOCKET, SO_KEEPALIVE, 1 ) or die();
+setsockopt( SSOCKET, SOL_SOCKET, SO_LINGER, pack( "II", 1, 5 ) ) or die();
                                                 # bind server socket to address
 bind( SSOCKET, sockaddr_in( $port, INADDR_ANY ) )
     or die( "bind: $! ($port)!" );
@@ -97,6 +100,8 @@ while ( $paddr = accept( CSOCKET, SSOCKET ) )   # while incoming sockets are ok
     my $clientip = inet_ntoa( $caddr );         # resolve client socket to ip
                                                 # resolve client socket to host
     my $clienthost = lc( gethostbyaddr( $caddr, AF_INET ) ); # 
+                                                # set to warn str if no host
+       $clienthost = $CqSvr::noatrbstr if ( !$clienthost );
     my $pid = 0;                                # init PID variable
     autoflush CSOCKET 1;                        # don't buffer client socket
     $cqtan = GenCqTan( $cqtan );                # inc our counter
@@ -129,7 +134,7 @@ while ( $paddr = accept( CSOCKET, SSOCKET ) )   # while incoming sockets are ok
 
         vec( $rin, fileno( CSOCKET ), 1 ) = 1;  # assign child bitmask to $rin
                                                 # ready for read & data in bufr
-        while ( (select( $rout=$rin, undef, undef, 0.1 ))[0]) 
+        while ( (select( $rout=$rin, undef, undef, 0.5 ))[0]) 
         {
             recv( CSOCKET, $_, 1024, 0 );       # Put data into $_
             last if (! $_);                     # Done if there's No more Data
