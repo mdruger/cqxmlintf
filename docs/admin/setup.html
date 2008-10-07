@@ -70,7 +70,7 @@ Now what you've been waiting for... how to setup a new CQ/XML server.
       <li class='warn'>we modified <code>XML/Mini.pm</code> <code>Error()</code> so instead of performing an '<code>exit(254)</code>' which can't be captured by <code>eval()</code>, it performs a '<code>die(@_)</code>'.
     </ul>
   </ul>
-  <li>As <code>root</code>, from a directory outside of <code>[instdir]</code>, run the command <code>[instdir]/secCXinst.sh</code> to fix the installation permissions and owners.</li>
+  <li>As <code>root</code>, from a directory outside of <code>[instdir]</code>, run the command <code>[instdir]/secCXinst.sh [instdir]</code> to fix the installation permissions and owners.</li>
   <ul>
     <li>On the development machines we usually change the permissions of <code>[instdir]</code> to <code>750</code> (aka <code>rwxr-x---</code> or user-read/write/execute, group-read/execute).</li>
   </ul>
