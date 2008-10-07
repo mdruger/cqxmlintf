@@ -33,4 +33,9 @@
             <product>Product A</product>
         </defect>
     </cq_user>
+    <cq_xml>
+        <defect>
+            <component>Component A</component>
+        </defect>
+    </cq_xml>
 </IpRecMod>
