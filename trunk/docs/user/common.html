@@ -129,7 +129,7 @@
   <ul>
     <li>A complete list of fields and their corresponding database column names is available via the <a href='http://engrdocs.sitedomain.com/clearquest/datadictionary.html'>ClearQuest Data Dictionary</a>.  Alternatively, within ClearQuest click on the field label and the database column will be displayed as '<span class='inline'>DB Field Name</span>'.</li>
   </ul>
-  <li>Recall that the schema auto-selects a reported version during the '<span class='inline'>Submit</span>' action.  To override this behavior, use the '<span class='inline'>version_reported_list</span>' field to specify a version or explicitly empty '<span class='inline'>version_reported_list<span>'.
+  <li>Recall that the schema auto-selects a reported version during the '<span class='inline'>Submit</span>' action.  To override this behavior, use the '<span class='inline'>version_reported_list</span>' field to specify a version or explicitly empty '<span class='inline'>version_reported_list</span>'.
     <table>
     <tr><td class='data'><b>Example #1:</b></td>
       <td class='data src'>
@@ -143,6 +143,7 @@
       &lt;<span class="elem">version_reported_list</span> /&gt;
       </td>
     </tr></table>
+    You can also use '<span class='inline'>version_*_list</span>' fields to append a version to a list that is already populated.
   </li>
 </ul>
 
