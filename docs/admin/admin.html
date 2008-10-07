@@ -19,7 +19,7 @@
   <li><a href='addenc.html'><img src='pics/key.png'> Adding an Encryption Key</a></li>
   <li><a href='addperm.html'><img src='pics/page_edit.png'> Adding a Permissions Entry</a></li>
   <li><a href='standby.html'><img src='pics/server_delete.png'> Putting the Server in Standby</a></li>
-  <li><a href='stats.html'><img src='pics/date.png'> Generating Monthly Statistics</a></li>
+  <li><a href='stats.html'><img src='pics/chart_curve.png'> Generating Statistics</a></li>
   <li><a href='wakeUpLogs.html'><img src='pics/lightbulb.png'> Wake Up the CQ/XML Logs via IIS</a></li>
   <!-- <li><j href='debug.html'><img src='pics/sport_8ball.png'> Debugging a Live Server</j></li> -->
   <li><a href='bugs.html'><img src='pics/bug.png'> Known Issues and Defects</a></li>
@@ -30,6 +30,14 @@
   <li><a href='../useful/index.html'><img src='pics/book_open.png'> CQ/XML Documentation Archive</a></li>
   <li><a href='http://cqqa06.sitedomain.com/cqxmllogs_practice'><img src='pics/report.png'> Practice Public Logs</a></li>
   <li><a href='http://cqmsgsvr.sitedomain.com/cqxmllogs'><img src='pics/report_user.png'> Production Public Logs</a></li>
+  <li>
+  <script>
+    var year = new Date().getUTCFullYear().toString();
+    document.write( "<a href='http://cqmsgsvr.sitedomain.com/cqxmllogs/status" );
+    document.write( year.slice(2) + ".html'>" );
+    document.write( "<img src='pics/server_chart.png'> CQ/XML Server Maintenance Status - " + year + "</a>" );
+  </script>
+  </li>
 </ul>
 <div class='sep'></div>
 <ul>
