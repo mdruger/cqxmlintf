@@ -648,7 +648,21 @@ sub CqExecXml
         }
         elsif ( $recatrb{rectype} eq 'sql' )    # if sql element
         {
-            ($cqerr, @arrayrtn) = CQ::RawSql( $session, $record{'-content'} );
+                                                # if sql in PCDATA
+            if ( defined( $record{'-content'} ) )
+            {
+                                                # send sql off to get processed
+                ($cqerr, @arrayrtn) = CQ::RawSql( $session, $record{'-content'} );
+            }
+            elsif ( defined( $record{CDATA} ) ) # if sql in CDATA
+            {
+                                                # send sql off to get processed
+                ($cqerr, @arrayrtn) = CQ::RawSql( $session, $record{CDATA} );
+            }
+            else                                # where's the sql?
+            {
+                $cqerr = "unable to locate sql statement!";
+            }
         }
         elsif ( $recatrb{action} =~ /^view$/i ) # view the record
         {
