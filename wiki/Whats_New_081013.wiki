@@ -1,4 +1,4 @@
-#summary CQ/XML INTERFACE - WHAT'S NEW - RELEASE: 2008-10-13
+#summary CQ/XML Interface - What's New - Release: 2008-10-13
 #labels Featured
 
 = Introduction =
